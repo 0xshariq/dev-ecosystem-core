@@ -139,7 +139,7 @@ export type MediaProcErrorCode = typeof MediaProcErrorCodes[keyof typeof MediaPr
  */
 export function getMediaProcErrorCategory(code: MediaProcErrorCode): string {
   const match = code.match(/^MEDIAPROC-([A-Z]+)-\d+$/);
-  return match ? match[1] : 'UNKNOWN';
+  return match?.[1] ?? 'UNKNOWN';
 }
 
 /**

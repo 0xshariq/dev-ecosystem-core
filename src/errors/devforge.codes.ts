@@ -104,7 +104,7 @@ export type DevforgeErrorCode = typeof DevforgeErrorCodes[keyof typeof DevforgeE
  */
 export function getDevforgeErrorCategory(code: DevforgeErrorCode): string {
   const match = code.match(/^DEVFORGE-([A-Z]+)-\d+$/);
-  return match ? match[1] : 'UNKNOWN';
+  return match?.[1] ?? 'UNKNOWN';
 }
 
 /**

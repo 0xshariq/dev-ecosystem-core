@@ -246,7 +246,7 @@ export type InputType = 'string' | 'number' | 'boolean' | 'array' | 'object';
  * 
  * @category Inputs
  */
-export interface InputDefinition {
+export interface WorkflowInputDefinition {
   /** Data type of input */
   type?: InputType;
   
@@ -265,7 +265,7 @@ export interface InputDefinition {
  * 
  * @category Inputs
  */
-export type WorkflowInputs = Record<string, InputDefinition>;
+export type WorkflowInputs = Record<string, WorkflowInputDefinition>;
 
 // ============================================================================
 // CONTEXT TYPES
@@ -299,7 +299,7 @@ export interface WorkflowContext {
  * 
  * @category Execution
  */
-export interface RetryConfig {
+export interface WorkflowRetryConfig {
   /** Maximum retry attempts */
   max: number;
   
@@ -328,7 +328,7 @@ export type TimeoutSpec = string;
  */
 export interface WorkflowDefaults {
   /** Default retry configuration */
-  retry?: RetryConfig;
+  retry?: WorkflowRetryConfig;
   
   /** Default step timeout */
   timeout?: TimeoutSpec;
@@ -460,7 +460,7 @@ export type StepCondition = string;
  * 
  * @category Steps
  */
-export interface StepDefinition {
+export interface WorkflowStepDefinition {
   /**
    * Unique step identifier
    * Used for output referencing and dependencies
@@ -498,7 +498,7 @@ export interface StepDefinition {
   needs?: string[];
   
   /** Step-specific retry config (overrides defaults) */
-  retry?: RetryConfig;
+  retry?: WorkflowRetryConfig;
   
   /** Step execution timeout (overrides defaults) */
   timeout?: TimeoutSpec;
@@ -527,7 +527,7 @@ export interface StepDefinition {
  */
 export interface WorkflowBody {
   /** Ordered list of execution steps */
-  steps: StepDefinition[];
+  steps: WorkflowStepDefinition[];
 }
 
 // ============================================================================

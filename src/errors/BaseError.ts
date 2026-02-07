@@ -72,7 +72,7 @@ export abstract class BaseError extends Error implements IEcosystemError {
   readonly retryable: boolean = false;
   readonly timestamp: Date;
   readonly context?: Record<string, any>;
-  readonly cause?: Error;
+  override readonly cause?: Error;
 
   constructor(
     message: string,
@@ -122,7 +122,7 @@ export abstract class BaseError extends Error implements IEcosystemError {
   /**
    * Convert to string representation
    */
-  toString(): string {
+  override toString(): string {
     return `[${this.code}] ${this.component}: ${this.message}`;
   }
 

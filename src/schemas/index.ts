@@ -14,6 +14,12 @@
  * ```
  */
 
+import {
+  OrbytWorkflowSchema,
+  ValidatedOrbytWorkflowSchema,
+  type WorkflowDefinitionZod,
+} from './workflow.schema.zod.js';
+
 // ============================================================================
 // ZOD SCHEMAS - Runtime Validation
 // ============================================================================
@@ -40,7 +46,7 @@ export {
   WorkflowBodySchema,
   
   // Type Exports from Zod
-  type WorkflowDefinition as ZodWorkflowDefinition,
+  type WorkflowDefinitionZod as ZodWorkflowDefinition,
   type ValidatedWorkflowDefinition,
   type StepDefinition as ZodStepDefinition,
   type TriggerDefinition,
@@ -89,7 +95,7 @@ export {
   type WorkflowLifecycleHooks,
   
   // Step Types
-  type StepDefinition,
+  type WorkflowStepDefinition,
   type StepOutputMapping,
   type StepCondition,
   
@@ -163,7 +169,7 @@ export function validateWorkflowStructure(workflow: unknown) {
 /**
  * Check if an object matches the workflow shape without throwing
  */
-export function isWorkflowDefinition(obj: unknown): obj is WorkflowDefinition {
+export function isWorkflowDefinition(obj: unknown): obj is WorkflowDefinitionZod {
   return OrbytWorkflowSchema.safeParse(obj).success;
 }
 

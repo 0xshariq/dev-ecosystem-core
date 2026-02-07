@@ -119,7 +119,7 @@ export type VaultaErrorCode = typeof VaultaErrorCodes[keyof typeof VaultaErrorCo
  */
 export function getVaultaErrorCategory(code: VaultaErrorCode): string {
   const match = code.match(/^VAULTA-([A-Z]+)-\d+$/);
-  return match ? match[1] : 'UNKNOWN';
+  return match?.[1] ?? 'UNKNOWN';
 }
 
 /**

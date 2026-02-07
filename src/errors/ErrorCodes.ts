@@ -171,7 +171,7 @@ export type OrbytErrorCode = typeof OrbytErrorCodes[keyof typeof OrbytErrorCodes
  */
 export function getOrbytErrorCategory(code: OrbytErrorCode): string {
   const match = code.match(/^ORBYT-([A-Z]+)-\d+$/);
-  return match ? match[1] : 'UNKNOWN';
+  return match?.[1] ?? 'UNKNOWN';
 }
 
 /**

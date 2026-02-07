@@ -22,7 +22,7 @@ export class ImageFormatUnsupportedError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = MediaProcErrorCodes.IMAGE_FORMAT_UNSUPPORTED;
   readonly exitCode = ExitCodes.INVALID_FORMAT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class ImageResizeError extends BaseError {
@@ -30,7 +30,7 @@ export class ImageResizeError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.IMAGE_RESIZE_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class ImageConversionError extends BaseError {
@@ -38,7 +38,7 @@ export class ImageConversionError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.IMAGE_CONVERSION_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class ImageFileCorruptedError extends BaseError {
@@ -46,7 +46,7 @@ export class ImageFileCorruptedError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = MediaProcErrorCodes.IMAGE_FILE_CORRUPTED;
   readonly exitCode = ExitCodes.INVALID_FILE;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class ImageWatermarkError extends BaseError {
@@ -54,7 +54,7 @@ export class ImageWatermarkError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.IMAGE_WATERMARK_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 // ============================================================================
@@ -66,7 +66,7 @@ export class VideoCodecNotFoundError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = MediaProcErrorCodes.VIDEO_CODEC_NOT_FOUND;
   readonly exitCode = ExitCodes.MISSING_DEPENDENCY;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class VideoTranscodeError extends BaseError {
@@ -74,8 +74,8 @@ export class VideoTranscodeError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.VIDEO_TRANSCODE_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
-  readonly retryable = true;
+  override readonly severity = ErrorSeverity.MEDIUM;
+  override readonly retryable = true;
 }
 
 export class VideoFormatUnsupportedError extends BaseError {
@@ -83,7 +83,7 @@ export class VideoFormatUnsupportedError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = MediaProcErrorCodes.VIDEO_FORMAT_UNSUPPORTED;
   readonly exitCode = ExitCodes.INVALID_FORMAT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class VideoFileCorruptedError extends BaseError {
@@ -91,7 +91,7 @@ export class VideoFileCorruptedError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = MediaProcErrorCodes.VIDEO_FILE_CORRUPTED;
   readonly exitCode = ExitCodes.INVALID_FILE;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 // ============================================================================
@@ -103,7 +103,7 @@ export class AudioCodecNotFoundError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = MediaProcErrorCodes.AUDIO_CODEC_NOT_FOUND;
   readonly exitCode = ExitCodes.MISSING_DEPENDENCY;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class AudioConversionError extends BaseError {
@@ -111,7 +111,7 @@ export class AudioConversionError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.AUDIO_CONVERSION_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class AudioFormatUnsupportedError extends BaseError {
@@ -119,7 +119,7 @@ export class AudioFormatUnsupportedError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = MediaProcErrorCodes.AUDIO_FORMAT_UNSUPPORTED;
   readonly exitCode = ExitCodes.INVALID_FORMAT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 // ============================================================================
@@ -131,7 +131,7 @@ export class PipelineStepError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.PIPELINE_STEP_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class PipelineConfigurationError extends BaseError {
@@ -139,7 +139,7 @@ export class PipelineConfigurationError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = MediaProcErrorCodes.PIPELINE_CONFIG_INVALID;
   readonly exitCode = ExitCodes.INVALID_CONFIG;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class PipelineTimeoutError extends BaseError {
@@ -147,6 +147,6 @@ export class PipelineTimeoutError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = MediaProcErrorCodes.PIPELINE_TIMEOUT;
   readonly exitCode = ExitCodes.TIMEOUT;
-  readonly severity = ErrorSeverity.MEDIUM;
-  readonly retryable = true;
+  override readonly severity = ErrorSeverity.MEDIUM;
+  override readonly retryable = true;
 }

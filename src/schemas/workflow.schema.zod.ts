@@ -48,13 +48,13 @@ const CronTriggerSchema = z.object({
 const EventTriggerSchema = z.object({
   type: z.literal('event'),
   source: z.string().describe('Event source identifier'),
-  filters: z.record(z.any()).optional().describe('Event filtering conditions'),
+  filters: z.record(z.string(), z.any()).optional().describe('Event filtering conditions'),
 }).describe('Event-driven trigger');
 
 const WebhookTriggerSchema = z.object({
   type: z.literal('webhook'),
   endpoint: z.string().describe('Webhook endpoint path'),
-  filters: z.record(z.any()).optional(),
+  filters: z.record(z.string(), z.any()).optional(),
 }).describe('Webhook trigger');
 
 export const TriggerSchema = z.discriminatedUnion('type', [
@@ -71,6 +71,7 @@ export const TriggerSchema = z.discriminatedUnion('type', [
 export const SecretsSchema = z.object({
   vault: z.string().default('vaulta').describe('Secret vault provider'),
   keys: z.record(
+    z.string(),
     z.string().regex(/^[a-zA-Z0-9_-]+:.+$/, 'Secret reference must be in format: provider:path')
   ).describe('Map of logical names to provider-specific secret paths'),
 }).describe('External secret references - values never stored in workflow');
@@ -86,7 +87,7 @@ export const InputDefinitionSchema = z.object({
   description: z.string().optional(),
 }).describe('Input parameter definition');
 
-export const InputsSchema = z.record(InputDefinitionSchema)
+export const InputsSchema = z.record(z.string(), InputDefinitionSchema)
   .describe('Runtime parameters for workflow reusability');
 
 // ============================================================================
@@ -166,7 +167,7 @@ export const StepSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/, 'uses must be in format: namespace.action or namespace.domain.action')
     .describe('Action to execute - universal adapter reference'),
   
-  with: z.record(z.any()).optional()
+  with: z.record(z.string(), z.any()).optional()
     .describe('Adapter-specific input parameters. Supports variable interpolation.'),
   
   when: z.string().optional()
@@ -184,10 +185,10 @@ export const StepSchema = z.object({
   continueOnError: z.boolean().default(false)
     .describe('Continue workflow even if step fails'),
   
-  outputs: z.record(z.string()).optional()
+  outputs: z.record(z.string(), z.string()).optional()
     .describe('Map step outputs to named values'),
   
-  env: z.record(z.string()).optional()
+  env: z.record(z.string(), z.string()).optional()
     .describe('Environment variables for this step'),
 }).describe('Individual workflow step definition');
 
@@ -225,7 +226,7 @@ export const OrbytWorkflowSchema = z.object({
   
   workflow: WorkflowBodySchema.describe('Core workflow execution definition'),
   
-  outputs: z.record(z.string()).optional()
+  outputs: z.record(z.string(), z.string()).optional()
     .describe('Final workflow outputs returned to caller'),
   
   on: z.object({
@@ -296,7 +297,7 @@ export const ValidatedOrbytWorkflowSchema = OrbytWorkflowSchema
 // TYPE EXPORTS
 // ============================================================================
 
-export type WorkflowDefinition = z.infer<typeof OrbytWorkflowSchema>;
+export type WorkflowDefinitionZod = z.infer<typeof OrbytWorkflowSchema>;
 export type ValidatedWorkflowDefinition = z.infer<typeof ValidatedOrbytWorkflowSchema>;
 export type StepDefinition = z.infer<typeof StepSchema>;
 export type TriggerDefinition = z.infer<typeof TriggerSchema>;

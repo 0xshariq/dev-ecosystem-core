@@ -22,7 +22,7 @@ export class TemplateNotFoundError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = DevforgeErrorCodes.TEMPLATE_NOT_FOUND;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class TemplateParseError extends BaseError {
@@ -30,7 +30,7 @@ export class TemplateParseError extends BaseError {
   readonly type = ErrorType.INTERNAL;
   readonly code = DevforgeErrorCodes.TEMPLATE_PARSE_FAILED;
   readonly exitCode = ExitCodes.INTERNAL_ERROR;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class TemplateStructureError extends BaseError {
@@ -38,7 +38,7 @@ export class TemplateStructureError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = DevforgeErrorCodes.TEMPLATE_STRUCTURE_INVALID;
   readonly exitCode = ExitCodes.INVALID_SCHEMA;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class TemplateRenderError extends BaseError {
@@ -46,7 +46,7 @@ export class TemplateRenderError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = DevforgeErrorCodes.TEMPLATE_RENDER_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 // ============================================================================
@@ -58,7 +58,7 @@ export class FeatureConflictError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = DevforgeErrorCodes.FEATURE_CONFLICT;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class FeatureNotFoundError extends BaseError {
@@ -66,7 +66,7 @@ export class FeatureNotFoundError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = DevforgeErrorCodes.FEATURE_NOT_FOUND;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class FeatureIncompatibleError extends BaseError {
@@ -74,7 +74,7 @@ export class FeatureIncompatibleError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = DevforgeErrorCodes.FEATURE_INCOMPATIBLE;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class FeatureInstallError extends BaseError {
@@ -82,7 +82,7 @@ export class FeatureInstallError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = DevforgeErrorCodes.FEATURE_INSTALL_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 // ============================================================================
@@ -94,7 +94,7 @@ export class ProjectGenerationError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = DevforgeErrorCodes.PROJECT_GENERATION_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class ProjectAlreadyExistsError extends BaseError {
@@ -102,7 +102,7 @@ export class ProjectAlreadyExistsError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = DevforgeErrorCodes.PROJECT_ALREADY_EXISTS;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class FileGenerationError extends BaseError {
@@ -110,7 +110,7 @@ export class FileGenerationError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = DevforgeErrorCodes.FILE_GENERATION_FAILED;
   readonly exitCode = ExitCodes.FILESYSTEM_ERROR;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class DirectoryCreationError extends BaseError {
@@ -118,7 +118,7 @@ export class DirectoryCreationError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = DevforgeErrorCodes.DIRECTORY_CREATION_FAILED;
   readonly exitCode = ExitCodes.FILESYSTEM_ERROR;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class DependencyInstallError extends BaseError {
@@ -126,8 +126,8 @@ export class DependencyInstallError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = DevforgeErrorCodes.DEPENDENCY_INSTALL_FAILED;
   readonly exitCode = ExitCodes.STEP_FAILED;
-  readonly severity = ErrorSeverity.HIGH;
-  readonly retryable = true;
+  override readonly severity = ErrorSeverity.HIGH;
+  override readonly retryable = true;
 }
 
 // ============================================================================
@@ -139,7 +139,7 @@ export class DevforgeConfigurationError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = DevforgeErrorCodes.CONFIG_INVALID;
   readonly exitCode = ExitCodes.INVALID_CONFIG;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class ConfigNotFoundError extends BaseError {
@@ -147,7 +147,7 @@ export class ConfigNotFoundError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = DevforgeErrorCodes.CONFIG_NOT_FOUND;
   readonly exitCode = ExitCodes.MISSING_CONFIG;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class ConfigParseError extends BaseError {
@@ -155,5 +155,5 @@ export class ConfigParseError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = DevforgeErrorCodes.CONFIG_PARSE_FAILED;
   readonly exitCode = ExitCodes.INVALID_FORMAT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }

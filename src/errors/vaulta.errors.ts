@@ -22,7 +22,7 @@ export class VaultNotInitializedError extends BaseError {
   readonly type = ErrorType.CONFIG;
   readonly code = VaultaErrorCodes.VAULT_NOT_INITIALIZED;
   readonly exitCode = ExitCodes.MISSING_CONFIG;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class VaultLockedError extends BaseError {
@@ -30,9 +30,9 @@ export class VaultLockedError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.VAULT_LOCKED;
   readonly exitCode = ExitCodes.VAULT_LOCKED;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
   
-  toUserMessage(): string {
+  override toUserMessage(): string {
     return 'Vault is locked. Please unlock it with: vaulta unlock';
   }
 }
@@ -42,7 +42,7 @@ export class VaultAlreadyExistsError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = VaultaErrorCodes.VAULT_ALREADY_EXISTS;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class VaultNotFoundError extends BaseError {
@@ -50,7 +50,7 @@ export class VaultNotFoundError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = VaultaErrorCodes.VAULT_NOT_FOUND;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class VaultCorruptedError extends BaseError {
@@ -58,7 +58,7 @@ export class VaultCorruptedError extends BaseError {
   readonly type = ErrorType.INTERNAL;
   readonly code = VaultaErrorCodes.VAULT_CORRUPTED;
   readonly exitCode = ExitCodes.STATE_CORRUPTION;
-  readonly severity = ErrorSeverity.CRITICAL;
+  override readonly severity = ErrorSeverity.CRITICAL;
 }
 
 // ============================================================================
@@ -70,9 +70,9 @@ export class InvalidMasterPasswordError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.INVALID_MASTER_PASSWORD;
   readonly exitCode = ExitCodes.INVALID_CREDENTIALS;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
   
-  toUserMessage(): string {
+  override toUserMessage(): string {
     return 'Invalid master password. Please try again.';
   }
 }
@@ -82,7 +82,7 @@ export class VaultPermissionDeniedError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.PERMISSION_DENIED;
   readonly exitCode = ExitCodes.PERMISSION_DENIED;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class VaultAuthenticationError extends BaseError {
@@ -90,7 +90,7 @@ export class VaultAuthenticationError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.AUTH_FAILED;
   readonly exitCode = ExitCodes.AUTH_FAILED;
-  readonly severity = ErrorSeverity.HIGH;
+  override readonly severity = ErrorSeverity.HIGH;
 }
 
 export class VaultSessionExpiredError extends BaseError {
@@ -98,9 +98,9 @@ export class VaultSessionExpiredError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.SESSION_EXPIRED;
   readonly exitCode = ExitCodes.AUTH_FAILED;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
   
-  toUserMessage(): string {
+  override toUserMessage(): string {
     return 'Session expired. Please unlock the vault again.';
   }
 }
@@ -114,7 +114,7 @@ export class EncryptionError extends BaseError {
   readonly type = ErrorType.INTERNAL;
   readonly code = VaultaErrorCodes.ENCRYPTION_FAILED;
   readonly exitCode = ExitCodes.INTERNAL_ERROR;
-  readonly severity = ErrorSeverity.CRITICAL;
+  override readonly severity = ErrorSeverity.CRITICAL;
 }
 
 export class DecryptionError extends BaseError {
@@ -122,7 +122,7 @@ export class DecryptionError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.DECRYPTION_FAILED;
   readonly exitCode = ExitCodes.INTERNAL_ERROR;
-  readonly severity = ErrorSeverity.CRITICAL;
+  override readonly severity = ErrorSeverity.CRITICAL;
 }
 
 export class InvalidEncryptionKeyError extends BaseError {
@@ -130,7 +130,7 @@ export class InvalidEncryptionKeyError extends BaseError {
   readonly type = ErrorType.SECURITY;
   readonly code = VaultaErrorCodes.INVALID_ENCRYPTION_KEY;
   readonly exitCode = ExitCodes.INVALID_CREDENTIALS;
-  readonly severity = ErrorSeverity.CRITICAL;
+  override readonly severity = ErrorSeverity.CRITICAL;
 }
 
 // ============================================================================
@@ -142,7 +142,7 @@ export class SecretNotFoundError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = VaultaErrorCodes.SECRET_NOT_FOUND;
   readonly exitCode = ExitCodes.MISSING_SECRET;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class SecretAlreadyExistsError extends BaseError {
@@ -150,7 +150,7 @@ export class SecretAlreadyExistsError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = VaultaErrorCodes.SECRET_ALREADY_EXISTS;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class InvalidSecretPathError extends BaseError {
@@ -158,7 +158,7 @@ export class InvalidSecretPathError extends BaseError {
   readonly type = ErrorType.USER;
   readonly code = VaultaErrorCodes.INVALID_SECRET_PATH;
   readonly exitCode = ExitCodes.INVALID_INPUT;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class SecretReadError extends BaseError {
@@ -166,7 +166,7 @@ export class SecretReadError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = VaultaErrorCodes.SECRET_READ_FAILED;
   readonly exitCode = ExitCodes.INTERNAL_ERROR;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
 
 export class SecretWriteError extends BaseError {
@@ -174,5 +174,5 @@ export class SecretWriteError extends BaseError {
   readonly type = ErrorType.EXECUTION;
   readonly code = VaultaErrorCodes.SECRET_WRITE_FAILED;
   readonly exitCode = ExitCodes.INTERNAL_ERROR;
-  readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity = ErrorSeverity.MEDIUM;
 }
