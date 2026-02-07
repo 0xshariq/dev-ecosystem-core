@@ -1,0 +1,485 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://orbyt.dev/schemas/workflow.v1.json",
+  "title": "Orbyt Workflow Schema",
+  "description": "Schema for defining declarative workflows in the Orbyt execution engine. This schema is domain-agnostic and can represent workflows for media processing, CI/CD, automation, data pipelines, and more.",
+  "type": "object",
+  "required": ["version", "kind", "workflow"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version following semantic versioning. Used for backward compatibility and migration.",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+      "examples": ["1.0", "1.0.0"]
+    },
+    "kind": {
+      "type": "string",
+      "description": "Type of executable. Defines how the workflow is interpreted and executed.",
+      "enum": ["workflow", "pipeline", "job", "playbook", "automation"],
+      "default": "workflow"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Human-readable metadata for identification, discovery, and organization. Not used for execution logic.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the workflow",
+          "examples": ["image-processing-pipeline", "deploy-to-production"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed explanation of what the workflow does"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for categorization and search",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["media", "image", "automation"]]
+        },
+        "owner": {
+          "type": "string",
+          "description": "Team or individual responsible for this workflow",
+          "examples": ["team-media", "sharique"]
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of this specific workflow (not schema version)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of workflow creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update"
+        }
+      },
+      "additionalProperties": true
+    },
+    "annotations": {
+      "type": "object",
+      "description": "Zero-runtime-impact hints for AI, UI, and tooling. Never affects execution.",
+      "properties": {
+        "ai.intent": {
+          "type": "string",
+          "description": "Hint for AI about workflow purpose",
+          "examples": ["media-processing", "deployment", "data-pipeline"]
+        },
+        "ui.group": {
+          "type": "string",
+          "description": "UI grouping category",
+          "examples": ["Media", "DevOps", "Data"]
+        },
+        "ui.icon": {
+          "type": "string",
+          "description": "Icon identifier for visual representation"
+        }
+      },
+      "additionalProperties": true
+    },
+    "triggers": {
+      "type": "array",
+      "description": "Defines how and when workflow execution starts. Same workflow can have multiple triggers.",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of trigger",
+            "enum": ["manual", "cron", "event", "webhook"]
+          },
+          "schedule": {
+            "type": "string",
+            "description": "Cron expression for scheduled execution (required for cron type)",
+            "examples": ["0 2 * * *", "*/15 * * * *"]
+          },
+          "source": {
+            "type": "string",
+            "description": "Event source identifier (required for event type)",
+            "examples": ["github.push", "vaulta.secret.updated"]
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "Webhook endpoint path (required for webhook type)",
+            "examples": ["/webhooks/deploy"]
+          },
+          "filters": {
+            "type": "object",
+            "description": "Event filtering conditions",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "description": "References to external secrets. Values are NEVER stored inline - only references to secret providers.",
+      "properties": {
+        "vault": {
+          "type": "string",
+          "description": "Default secret vault provider",
+          "default": "vaulta",
+          "examples": ["vaulta", "aws-secrets", "vault"]
+        },
+        "keys": {
+          "type": "object",
+          "description": "Map of logical secret names to provider-specific paths. Format: 'provider:path'",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+:.+$"
+          },
+          "examples": [{
+            "IMAGE_API_KEY": "vaulta:mediaproc/image/api_key",
+            "UPLOAD_TOKEN": "vaulta:orbyt/keys/upload-token"
+          }]
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "description": "External parameters passed at runtime. Makes workflows reusable with different data.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Data type of input",
+            "enum": ["string", "number", "boolean", "array", "object"]
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Whether input must be provided",
+            "default": false
+          },
+          "default": {
+            "description": "Default value if not provided"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of input purpose"
+          }
+        }
+      },
+      "examples": [{
+        "image_path": {
+          "type": "string",
+          "required": true,
+          "description": "Path to input image file"
+        },
+        "width": {
+          "type": "number",
+          "default": 1024,
+          "description": "Target width for resize"
+        }
+      }]
+    },
+    "context": {
+      "type": "object",
+      "description": "Runtime environment information. Read-only for steps.",
+      "properties": {
+        "env": {
+          "type": "string",
+          "description": "Environment name",
+          "enum": ["local", "dev", "staging", "prod"],
+          "examples": ["local", "prod"]
+        },
+        "platform": {
+          "type": "string",
+          "description": "Execution platform",
+          "examples": ["local", "cloud", "docker"]
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Working directory path",
+          "examples": ["./workdir", "/tmp/orbyt"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "defaults": {
+      "type": "object",
+      "description": "Default values applied to all steps unless overridden.",
+      "properties": {
+        "retry": {
+          "type": "object",
+          "properties": {
+            "max": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Maximum retry attempts"
+            },
+            "backoff": {
+              "type": "string",
+              "enum": ["linear", "exponential"],
+              "description": "Retry backoff strategy"
+            },
+            "delay": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Initial delay in milliseconds"
+            }
+          }
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Default step timeout (e.g., '30s', '5m', '1h')",
+          "pattern": "^[0-9]+(ms|s|m|h|d)$",
+          "examples": ["30s", "5m"]
+        },
+        "adapter": {
+          "type": "string",
+          "description": "Default adapter if not specified in uses",
+          "examples": ["cli", "http", "shell"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "policies": {
+      "type": "object",
+      "description": "Execution policies and rules.",
+      "properties": {
+        "failure": {
+          "type": "string",
+          "enum": ["stop", "continue", "isolate"],
+          "description": "What to do when a step fails",
+          "default": "stop"
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum parallel step execution",
+          "default": 1
+        },
+        "sandbox": {
+          "type": "string",
+          "enum": ["none", "basic", "strict"],
+          "description": "Sandbox enforcement level",
+          "default": "basic"
+        }
+      },
+      "additionalProperties": true
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Fine-grained permissions for security and sandboxing. Critical for untrusted workflows.",
+      "properties": {
+        "fs": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Allowed read paths"
+            },
+            "write": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Allowed write paths"
+            }
+          }
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "allow": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Allowed network hosts/domains"
+            },
+            "deny": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Blocked network hosts/domains"
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource constraints for cloud/distributed execution. Reserved for future use.",
+      "properties": {
+        "cpu": {
+          "type": ["number", "string"],
+          "description": "CPU allocation",
+          "examples": [1, "1", "0.5"]
+        },
+        "memory": {
+          "type": "string",
+          "description": "Memory allocation",
+          "examples": ["512MB", "2GB"]
+        },
+        "disk": {
+          "type": "string",
+          "description": "Disk allocation",
+          "examples": ["1GB", "10GB"]
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Overall workflow timeout"
+        }
+      },
+      "additionalProperties": true
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["steps"],
+      "description": "The core executable definition. Contains the actual work to be performed.",
+      "properties": {
+        "steps": {
+          "type": "array",
+          "description": "Ordered list of execution steps. Engine builds dependency graph from outputs and variables.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "uses"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique identifier for this step. Used for output referencing and dependencies.",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+                "examples": ["resize", "watermark", "upload_to_s3"]
+              },
+              "name": {
+                "type": "string",
+                "description": "Human-readable step name"
+              },
+              "uses": {
+                "type": "string",
+                "description": "Action to execute. Format: 'namespace.action' or 'namespace.domain.action'. This is THE universal abstraction - same syntax for plugins, CLI, HTTP, shell, database, etc.",
+                "pattern": "^[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$",
+                "examples": [
+                  "mediaproc.image.resize",
+                  "cli.exec",
+                  "http.request",
+                  "shell.run",
+                  "db.query",
+                  "vaulta.get"
+                ]
+              },
+              "with": {
+                "type": "object",
+                "description": "Input parameters passed to the action. Structure is adapter-specific and validated by the adapter, not by this schema. Supports variable interpolation using ${namespace.path} syntax.",
+                "additionalProperties": true,
+                "examples": [{
+                  "input": "${steps.resize.outputs.path}",
+                  "width": 800,
+                  "format": "webp"
+                }]
+              },
+              "when": {
+                "type": "string",
+                "description": "Conditional execution expression. Step only runs if expression evaluates to true. Supports: ${inputs.*}, ${secrets.*}, ${steps.*.outputs.*}, ${context.*}",
+                "examples": [
+                  "${inputs.env} == 'prod'",
+                  "${steps.validate.outputs.success} == true"
+                ]
+              },
+              "needs": {
+                "type": "array",
+                "description": "Explicit step dependencies. Step waits for these steps to complete. Can also be inferred from output references.",
+                "items": {
+                  "type": "string"
+                },
+                "examples": [["resize", "validate"]]
+              },
+              "retry": {
+                "type": "object",
+                "description": "Step-specific retry configuration. Overrides workflow defaults.",
+                "properties": {
+                  "max": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "backoff": {
+                    "type": "string",
+                    "enum": ["linear", "exponential"]
+                  },
+                  "delay": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "timeout": {
+                "type": "string",
+                "description": "Maximum execution time for this step. Overrides workflow defaults.",
+                "pattern": "^[0-9]+(ms|s|m|h)$",
+                "examples": ["30s", "2m", "1h"]
+              },
+              "continueOnError": {
+                "type": "boolean",
+                "description": "If true, workflow continues even if this step fails. Critical for cleanup and best-effort steps.",
+                "default": false
+              },
+              "outputs": {
+                "type": "object",
+                "description": "Maps step output values to named outputs for use in other steps. Enables data flow between steps.",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "examples": [{
+                  "image_path": "${result.path}",
+                  "width": "${result.dimensions.width}"
+                }]
+              },
+              "env": {
+                "type": "object",
+                "description": "Environment variables for this step",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "description": "Final workflow outputs returned to caller. Pure mapping from step outputs to workflow-level outputs.",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "examples": [{
+        "final_image": "${steps.upload.outputs.url}",
+        "processing_time": "${steps.resize.outputs.duration}"
+      }]
+    },
+    "on": {
+      "type": "object",
+      "description": "Lifecycle hooks. Reserved for future use.",
+      "properties": {
+        "success": {
+          "type": "array",
+          "description": "Steps to run on successful completion",
+          "items": {
+            "type": "object"
+          }
+        },
+        "failure": {
+          "type": "array",
+          "description": "Steps to run on failure",
+          "items": {
+            "type": "object"
+          }
+        },
+        "always": {
+          "type": "array",
+          "description": "Steps to always run (cleanup)",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

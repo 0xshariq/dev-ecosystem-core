@@ -1,0 +1,16 @@
+# Minimal Valid Orbyt Workflow
+# 
+# This is the simplest possible workflow.
+# Only required fields are present.
+# 
+# Use this as a starting point or for testing validators.
+
+version: "1.0"
+kind: workflow
+
+workflow:
+  steps:
+    - id: hello
+      uses: cli.exec
+      with:
+        command: echo "Hello, Orbyt!"

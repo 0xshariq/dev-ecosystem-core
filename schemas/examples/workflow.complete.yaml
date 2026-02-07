@@ -1,0 +1,231 @@
+# Complete Orbyt Workflow Example
+# 
+# This workflow demonstrates ALL available fields including future-reserved ones.
+# Use this as comprehensive documentation of schema capabilities.
+# 
+# Many fields here are optional or reserved for future versions.
+# A real workflow would typically only use a subset of these.
+
+version: "1.0"
+kind: workflow
+
+# === METADATA ===
+# Human-readable information for organization and discovery
+metadata:
+  name: complete-example-workflow
+  description: Demonstrates all possible workflow fields
+  tags:
+    - example
+    - documentation
+    - complete
+  owner: ecosystem-team
+  version: 1.2.0
+  createdAt: "2026-02-07T00:00:00Z"
+  updatedAt: "2026-02-07T12:00:00Z"
+
+# === ANNOTATIONS ===
+# Zero-runtime-impact hints for AI, UI, and tooling
+annotations:
+  ai.intent: demonstration
+  ui.group: Examples
+  ui.icon: workflow-icon
+  custom.field: custom-value
+
+# === TRIGGERS ===
+# Define how and when workflow execution starts
+triggers:
+  # Manual execution
+  - type: manual
+  
+  # Scheduled execution via cron
+  - type: cron
+    schedule: "0 2 * * *"  # Daily at 2 AM
+  
+  # Event-driven execution
+  - type: event
+    source: github.push
+    filters:
+      branch: main
+  
+  # Webhook trigger
+  - type: webhook
+    endpoint: /webhooks/deploy
+    filters:
+      action: released
+
+# === SECRETS ===
+# External secret references (never store values inline)
+secrets:
+  vault: vaulta  # Default vault provider
+  keys:
+    API_KEY: vaulta:orbyt/demo/api-key
+    DB_PASSWORD: vaulta:orbyt/demo/db-password
+    UPLOAD_TOKEN: vaulta:mediaproc/upload/token
+
+# === INPUTS ===
+# Runtime parameters for workflow reusability
+inputs:
+  environment:
+    type: string
+    required: true
+    description: Target environment (dev, staging, prod)
+  
+  input_file:
+    type: string
+    required: true
+    description: Path to input file
+  
+  width:
+    type: number
+    default: 1024
+    description: Target width for processing
+  
+  debug:
+    type: boolean
+    default: false
+    description: Enable debug mode
+  
+  tags:
+    type: array
+    default: []
+    description: Additional tags to apply
+
+# === CONTEXT ===
+# Runtime environment information (read-only for steps)
+context:
+  env: local
+  platform: docker
+  workspace: ./workdir
+
+# === DEFAULTS ===
+# Default settings applied to all steps
+defaults:
+  retry:
+    max: 3
+    backoff: exponential
+    delay: 1000
+  timeout: 5m
+  adapter: cli
+
+# === POLICIES ===
+# Execution policies and rules
+policies:
+  failure: stop        # stop | continue | isolate
+  concurrency: 4       # Max parallel steps
+  sandbox: strict      # none | basic | strict
+
+# === PERMISSIONS ===
+# Fine-grained security permissions (critical for untrusted workflows)
+permissions:
+  fs:
+    read:
+      - ./input/**
+      - ./config/**
+    write:
+      - ./output/**
+      - ./logs/**
+  network:
+    allow:
+      - api.example.com
+      - storage.example.com
+    deny:
+      - "*"
+
+# === RESOURCES ===
+# Resource constraints (reserved for cloud/distributed execution)
+resources:
+  cpu: 2
+  memory: 2GB
+  disk: 10GB
+  timeout: 30m
+
+# === WORKFLOW ===
+# Core execution definition - the actual work
+workflow:
+  steps:
+    # Step 1: Validate input
+    - id: validate
+      name: Validate Input File
+      uses: cli.exec
+      with:
+        command: test -f ${inputs.input_file}
+      timeout: 10s
+      continueOnError: false
+    
+    # Step 2: Process file
+    - id: process
+      name: Process File
+      uses: cli.exec
+      needs:
+        - validate  # Explicit dependency
+      with:
+        command: process-file
+        args:
+          - ${inputs.input_file}
+          - --width=${inputs.width}
+      when: ${inputs.debug} != true  # Conditional execution
+      retry:
+        max: 2
+        backoff: linear
+        delay: 500
+      timeout: 2m
+      env:
+        API_KEY: ${secrets.API_KEY}
+        DEBUG: ${inputs.debug}
+      outputs:
+        output_path: ${result.path}
+        duration: ${result.duration}
+    
+    # Step 3: Upload result
+    - id: upload
+      name: Upload to Storage
+      uses: http.request
+      needs:
+        - process
+      with:
+        method: POST
+        url: https://api.example.com/upload
+        headers:
+          Authorization: Bearer ${secrets.UPLOAD_TOKEN}
+          Content-Type: application/json
+        body:
+          file: ${steps.process.outputs.output_path}
+          environment: ${inputs.environment}
+      timeout: 30s
+      outputs:
+        upload_url: ${response.url}
+        upload_id: ${response.id}
+    
+    # Step 4: Cleanup (always runs)
+    - id: cleanup
+      name: Cleanup Temp Files
+      uses: cli.exec
+      with:
+        command: rm -rf ./temp
+      continueOnError: true  # Don't fail workflow if cleanup fails
+      timeout: 10s
+
+# === OUTPUTS ===
+# Final workflow outputs returned to caller
+outputs:
+  result_url: ${steps.upload.outputs.upload_url}
+  result_id: ${steps.upload.outputs.upload_id}
+  processing_time: ${steps.process.outputs.duration}
+
+# === LIFECYCLE HOOKS ===
+# Reserved for future use
+on:
+  success:
+    - uses: cli.exec
+      with:
+        command: echo "Workflow succeeded"
+  
+  failure:
+    - uses: cli.exec
+      with:
+        command: echo "Workflow failed"
+  
+  always:
+    - uses: cli.exec
+      with:
+        command: echo "Workflow completed"

@@ -1,0 +1,150 @@
+# MediaProc Image Processing Workflow
+# 
+# Realistic media processing pipeline demonstrating:
+# - MediaProc plugin integration
+# - Variable chaining between steps
+# - Secret management with Vaulta
+# - Reusable inputs
+# - Output mapping
+# 
+# This workflow:
+# 1. Resizes an image to target dimensions
+# 2. Applies a watermark
+# 3. Optimizes for web delivery
+# 4. Uploads to cloud storage
+
+version: "1.0"
+kind: workflow
+
+metadata:
+  name: image-processing-pipeline
+  description: Resize, watermark, and optimize images for web
+  tags:
+    - mediaproc
+    - image
+    - processing
+  owner: media-team
+
+# Vaulta secrets for API access
+secrets:
+  vault: vaulta
+  keys:
+    STORAGE_TOKEN: vaulta:mediaproc/upload/token
+    WATERMARK_KEY: vaulta:mediaproc/image/watermark-key
+
+# Runtime parameters for reusability
+inputs:
+  image_path:
+    type: string
+    required: true
+    description: Path to input image
+  
+  target_width:
+    type: number
+    default: 1920
+    description: Target width in pixels
+  
+  target_height:
+    type: number
+    default: 1080
+    description: Target height in pixels
+  
+  watermark_text:
+    type: string
+    default: "© 2026 Orbyt"
+    description: Watermark text to apply
+  
+  output_format:
+    type: string
+    default: webp
+    description: Output image format (webp, jpeg, png)
+
+# Default retry and timeout for all steps
+defaults:
+  retry:
+    max: 2
+    backoff: exponential
+    delay: 1000
+  timeout: 30s
+
+# Core workflow execution
+workflow:
+  steps:
+    # Step 1: Resize image to target dimensions
+    - id: resize
+      name: Resize Image
+      uses: mediaproc.image.resize
+      with:
+        input: ${inputs.image_path}
+        width: ${inputs.target_width}
+        height: ${inputs.target_height}
+        fit: cover
+        position: center
+      outputs:
+        resized_path: ${result.output.path}
+        original_width: ${result.input.width}
+        original_height: ${result.input.height}
+    
+    # Step 2: Apply watermark
+    - id: watermark
+      name: Apply Watermark
+      uses: mediaproc.image.watermark
+      with:
+        input: ${steps.resize.outputs.resized_path}
+        text: ${inputs.watermark_text}
+        position: bottom-right
+        opacity: 0.7
+        font_size: 24
+        color: "#FFFFFF"
+      env:
+        WATERMARK_KEY: ${secrets.WATERMARK_KEY}
+      outputs:
+        watermarked_path: ${result.output.path}
+    
+    # Step 3: Optimize for web
+    - id: optimize
+      name: Optimize for Web
+      uses: mediaproc.image.convert
+      with:
+        input: ${steps.watermark.outputs.watermarked_path}
+        format: ${inputs.output_format}
+        quality: 85
+        strip_metadata: true
+        progressive: true
+      outputs:
+        optimized_path: ${result.output.path}
+        file_size: ${result.output.size}
+        format: ${result.output.format}
+    
+    # Step 4: Upload to cloud storage
+    - id: upload
+      name: Upload to Storage
+      uses: http.request
+      with:
+        method: POST
+        url: https://storage.api.example.com/v1/upload
+        headers:
+          Authorization: Bearer ${secrets.STORAGE_TOKEN}
+          Content-Type: multipart/form-data
+        files:
+          image: ${steps.optimize.outputs.optimized_path}
+        body:
+          filename: processed_${inputs.image_path}
+          content_type: image/${inputs.output_format}
+      retry:
+        max: 3  # Override default for network operations
+        backoff: exponential
+      timeout: 60s  # Override default for upload
+      outputs:
+        public_url: ${response.url}
+        storage_id: ${response.id}
+        cdn_url: ${response.cdn_url}
+
+# Return final results
+outputs:
+  image_url: ${steps.upload.outputs.public_url}
+  cdn_url: ${steps.upload.outputs.cdn_url}
+  storage_id: ${steps.upload.outputs.storage_id}
+  file_size: ${steps.optimize.outputs.file_size}
+  dimensions: ${inputs.target_width}x${inputs.target_height}
+  format: ${steps.optimize.outputs.format}

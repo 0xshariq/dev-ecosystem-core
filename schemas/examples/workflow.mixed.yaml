@@ -1,0 +1,159 @@
+# Mixed Multi-Domain Workflow
+# 
+# Demonstrates Orbyt's universal nature by combining multiple adapter types:
+# - CLI commands
+# - HTTP requests
+# - Shell scripts
+# - Plugin actions
+# 
+# This shows that the same workflow schema works across domains.
+# Orbyt is truly adapter-agnostic.
+
+version: "1.0"
+kind: workflow
+
+metadata:
+  name: mixed-domain-workflow
+  description: Demonstrates multiple adapter types in one workflow
+  tags:
+    - example
+    - multi-domain
+    - universal
+  owner: platform-team
+
+secrets:
+  vault: vaulta
+  keys:
+    API_TOKEN: vaulta:orbyt/demo/api-token
+    DB_PASSWORD: vaulta:orbyt/demo/db-password
+
+inputs:
+  project_name:
+    type: string
+    required: true
+    description: Name of the project
+  
+  environment:
+    type: string
+    default: production
+    description: Target environment
+
+workflow:
+  steps:
+    # CLI Adapter: Run a command-line tool
+    - id: validate_env
+      name: Validate Environment
+      uses: cli.exec
+      with:
+        command: which docker
+      outputs:
+        docker_path: ${stdout}
+    
+    # Shell Adapter: Execute shell script
+    - id: setup_workspace
+      name: Setup Workspace
+      uses: shell.run
+      with:
+        script: |
+          mkdir -p ./workspace/${inputs.project_name}
+          cd ./workspace/${inputs.project_name}
+          git init
+          echo "Workspace ready"
+      outputs:
+        workspace_path: ./workspace/${inputs.project_name}
+    
+    # HTTP Adapter: Make API request
+    - id: fetch_config
+      name: Fetch Configuration
+      uses: http.request
+      with:
+        method: GET
+        url: https://api.config.example.com/v1/config/${inputs.project_name}
+        headers:
+          Authorization: Bearer ${secrets.API_TOKEN}
+          Accept: application/json
+        query:
+          env: ${inputs.environment}
+      outputs:
+        config_data: ${response.body}
+        config_version: ${response.headers.x-config-version}
+    
+    # Database Adapter: Query database
+    - id: fetch_metadata
+      name: Fetch Project Metadata
+      uses: db.query
+      with:
+        engine: postgres
+        connection: postgresql://user:${secrets.DB_PASSWORD}@localhost:5432/projects
+        query: SELECT * FROM projects WHERE name = $1
+        params:
+          - ${inputs.project_name}
+      outputs:
+        project_id: ${result.rows[0].id}
+        created_at: ${result.rows[0].created_at}
+    
+    # Plugin Adapter: Custom plugin action
+    - id: process_data
+      name: Process Data
+      uses: plugin.dataproc.transform
+      with:
+        input: ${steps.fetch_config.outputs.config_data}
+        format: json
+        operations:
+          - normalize
+          - validate
+      outputs:
+        processed_data: ${result.output}
+    
+    # CLI Adapter: Another CLI tool
+    - id: generate_report
+      name: Generate Report
+      uses: cli.exec
+      with:
+        command: report-generator
+        args:
+          - --project=${inputs.project_name}
+          - --data=${steps.process_data.outputs.processed_data}
+          - --output=./workspace/${inputs.project_name}/report.pdf
+      env:
+        PROJECT_ID: ${steps.fetch_metadata.outputs.project_id}
+      outputs:
+        report_path: ./workspace/${inputs.project_name}/report.pdf
+    
+    # HTTP Adapter: Upload result
+    - id: upload_report
+      name: Upload Report
+      uses: http.request
+      with:
+        method: POST
+        url: https://api.storage.example.com/v1/reports
+        headers:
+          Authorization: Bearer ${secrets.API_TOKEN}
+          Content-Type: application/json
+        body:
+          project_id: ${steps.fetch_metadata.outputs.project_id}
+          project_name: ${inputs.project_name}
+          environment: ${inputs.environment}
+          report_url: ${steps.generate_report.outputs.report_path}
+          created_at: ${steps.fetch_metadata.outputs.created_at}
+      outputs:
+        upload_id: ${response.id}
+        public_url: ${response.url}
+    
+    # Shell Adapter: Cleanup
+    - id: cleanup
+      name: Cleanup Temporary Files
+      uses: shell.run
+      with:
+        script: |
+          rm -rf ./workspace/${inputs.project_name}/temp
+          echo "Cleanup complete"
+      continueOnError: true
+
+# Final outputs combining data from multiple steps
+outputs:
+  report_url: ${steps.upload_report.outputs.public_url}
+  upload_id: ${steps.upload_report.outputs.upload_id}
+  project_id: ${steps.fetch_metadata.outputs.project_id}
+  workspace: ${steps.setup_workspace.outputs.workspace_path}
+  config_version: ${steps.fetch_config.outputs.config_version}
