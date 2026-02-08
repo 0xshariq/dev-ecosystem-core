@@ -1,204 +1,61 @@
 /**
  * Orbyt Workflow Type Definitions
  * 
- * Comprehensive TypeScript types for Orbyt workflows.
- * These types define the structure of workflow definitions across the ecosystem.
+ * Comprehensive TypeScript interfaces for Orbyt workflows.
+ * These interfaces define the structure of workflow definitions across the ecosystem.
  * 
  * Key Principles:
  * - Domain-agnostic: works for any workflow type
  * - Explicit over implicit: no `any` unless truly dynamic
- * - Documented: every type has clear purpose
+ * - Documented: every interface has clear purpose
  * - Versioned: includes v1 and future-reserved fields
+ * 
+ * Note: Enums are in workflow.enums.ts, type aliases are in workflow.type-aliases.ts
  */
 
 // ============================================================================
-// ENUMS & CONSTANTS
+// IMPORTS
 // ============================================================================
 
-/**
- * Type of workflow executable
- */
-export enum WorkflowKind {
-  /** Standard workflow - default execution model */
-  Workflow = 'workflow',
-  /** Pipeline - emphasizes data flow */
-  Pipeline = 'pipeline',
-  /** Job - emphasizes scheduled/batch execution */
-  Job = 'job',
-  /** Playbook - emphasizes operational procedures */
-  Playbook = 'playbook',
-  /** Automation - emphasizes event-driven execution */
-  Automation = 'automation',
-}
+// Re-export for convenience
+import type {
+  WorkflowKind,
+  TriggerType,
+  FailurePolicy,
+  BackoffStrategy,
+  SandboxLevel,
+  ExecutionEnvironment,
+  WorkflowSourceType,
+  ExecutionMode,
+  IsolationLevel,
+  ExecutionPriority,
+  TelemetryLevel,
+  AccountingUnit,
+  FailureAction,
+  TimeoutAction,
+  RollbackStrategy,
+  UsageScope,
+  UsageCategory,
+  ProductIdentifier,
+  CostHint,
+  LogsLevel,
+  MetricsLevel,
+  StepFailureAction,
+  StrategyType,
+  TraceLevel
+} from './workflow.enums.js';
 
-/**
- * Trigger types for workflow execution
- */
-export enum TriggerType {
-  /** Manually invoked by user */
-  Manual = 'manual',
-  /** Scheduled via cron expression */
-  Cron = 'cron',
-  /** Event-driven execution */
-  Event = 'event',
-  /** HTTP webhook trigger */
-  Webhook = 'webhook',
-}
-
-/**
- * Failure handling policy
- */
-export enum FailurePolicy {
-  /** Stop entire workflow on first failure */
-  Stop = 'stop',
-  /** Continue with remaining steps */
-  Continue = 'continue',
-  /** Isolate failure to step only */
-  Isolate = 'isolate',
-}
-
-/**
- * Retry backoff strategy
- */
-export enum BackoffStrategy {
-  /** Fixed delay between retries */
-  Linear = 'linear',
-  /** Exponentially increasing delay */
-  Exponential = 'exponential',
-}
-
-/**
- * Sandbox enforcement level
- */
-export enum SandboxLevel {
-  /** No sandboxing */
-  None = 'none',
-  /** Basic permission checks */
-  Basic = 'basic',
-  /** Strict isolation and permissions */
-  Strict = 'strict',
-}
-
-/**
- * Execution environment
- */
-export enum ExecutionEnvironment {
-  Local = 'local',
-  Dev = 'dev',
-  Staging = 'staging',
-  Prod = 'prod',
-}
-
-/**
- * Workflow source type
- */
-export enum WorkflowSourceType {
-  /** From marketplace */
-  Marketplace = 'marketplace',
-  /** Local file */
-  Local = 'local',
-  /** AI/Tool generated */
-  Generated = 'generated',
-  /** API created */
-  API = 'api',
-}
-
-/**
- * Execution mode
- */
-export enum ExecutionMode {
-  /** Local process */
-  Local = 'local',
-  /** Docker container */
-  Docker = 'docker',
-  /** Remote execution */
-  Remote = 'remote',
-  /** Distributed execution */
-  Distributed = 'distributed',
-}
-
-/**
- * Execution isolation level
- */
-export enum IsolationLevel {
-  /** Process-level isolation */
-  Process = 'process',
-  /** Container isolation */
-  Container = 'container',
-  /** Virtual machine isolation */
-  VM = 'vm',
-}
-
-/**
- * Execution priority
- */
-export enum ExecutionPriority {
-  Low = 'low',
-  Normal = 'normal',
-  High = 'high',
-}
-
-/**
- * Telemetry level
- */
-export enum TelemetryLevel {
-  Minimal = 'minimal',
-  Standard = 'standard',
-  Verbose = 'verbose',
-}
-
-/**
- * Accounting unit
- */
-export enum AccountingUnit {
-  /** Per execution */
-  Execution = 'execution',
-  /** Per step */
-  Step = 'step',
-  /** Per minute */
-  Minute = 'minute',
-}
-
-/**
- * Failure action
- */
-export enum FailureAction {
-  /** Retry step */
-  Retry = 'retry',
-  /** Skip step */
-  Skip = 'skip',
-  /** Rollback workflow */
-  Rollback = 'rollback',
-  /** Isolate failure */
-  Isolate = 'isolate',
-  /** Abort workflow */
-  Abort = 'abort',
-}
-
-/**
- * Timeout action
- */
-export enum TimeoutAction {
-  /** Abort workflow */
-  Abort = 'abort',
-  /** Retry step */
-  Retry = 'retry',
-  /** Mark as partial success */
-  Partial = 'partial',
-}
-
-/**
- * Rollback strategy
- */
-export enum RollbackStrategy {
-  /** Reverse order of steps */
-  Reverse = 'reverse',
-  /** Custom rollback logic */
-  Custom = 'custom',
-}
+import type {
+  InputType,
+  TimeoutSpec,
+  StepOutputMapping,
+  StepCondition,
+  V1Field,
+  FutureField,
+} from './workflow.type.js';
 
 // ============================================================================
-// METADATA TYPES
+// METADATA INTERFACES
 // ============================================================================
 
 /**
@@ -228,6 +85,12 @@ export interface WorkflowMetadata {
 
   /** ISO 8601 last update timestamp */
   updatedAt?: string;
+
+  /** V1 field marker */
+  v1?: V1Field;
+
+  /** Future field marker */
+  future?: FutureField;
 
   /** Allow additional metadata fields */
   [key: string]: any;
@@ -312,14 +175,14 @@ export interface WebhookTrigger extends BaseTrigger {
 }
 
 /**
- * Union of all trigger types
+ * Union of all trigger types (override type alias with proper definition)
  * 
  * @category Triggers
  */
 export type WorkflowTrigger = ManualTrigger | CronTrigger | EventTrigger | WebhookTrigger;
 
 // ============================================================================
-// SECRETS TYPES
+// SECRETS INTERFACES
 // ============================================================================
 
 /**
@@ -339,15 +202,8 @@ export interface WorkflowSecrets {
 }
 
 // ============================================================================
-// INPUT TYPES
+// INPUT INTERFACES
 // ============================================================================
-
-/**
- * Input parameter data types
- * 
- * @category Inputs
- */
-export type InputType = 'string' | 'number' | 'boolean' | 'array' | 'object';
 
 /**
  * Definition of a single input parameter
@@ -369,14 +225,14 @@ export interface WorkflowInputDefinition {
 }
 
 /**
- * Runtime parameters for workflow reusability
+ * Runtime parameters for workflow reusability (override type alias with proper definition)
  * 
  * @category Inputs
  */
 export type WorkflowInputs = Record<string, WorkflowInputDefinition>;
 
 // ============================================================================
-// CONTEXT TYPES
+// CONTEXT INTERFACES
 // ============================================================================
 
 /**
@@ -418,15 +274,8 @@ export interface WorkflowRetryConfig {
   delay?: number;
 }
 
-/**
- * Timeout specification (e.g., "30s", "5m", "1h")
- * 
- * @category Execution
- */
-export type TimeoutSpec = string;
-
 // ============================================================================
-// DEFAULTS TYPES
+// DEFAULTS INTERFACES
 // ============================================================================
 
 /**
@@ -548,48 +397,9 @@ export interface WorkflowResources {
 // USAGE & COUNTING TYPES
 // ============================================================================
 
-/**
- * Usage scope for automation counting
- * 
- * @category Usage
- */
-export enum UsageScope {
-  /** Ecosystem-wide aggregation */
-  Ecosystem = 'ecosystem',
-  /** Component-level (Orbyt, MediaProc, etc.) */
-  Component = 'component',
-  /** Individual workflow */
-  Workflow = 'workflow',
-}
-
-/**
- * Usage category for billing classification
- * 
- * @category Usage
- */
-export enum UsageCategory {
-  /** Automation workflow */
-  Automation = 'automation',
-  /** Data pipeline */
-  Pipeline = 'pipeline',
-  /** Batch job */
-  Batch = 'batch',
-  /** Background job */
-  Job = 'job',
-}
-
-/**
- * Product identifier for ecosystem components
- * 
- * @category Usage
- */
-export enum ProductIdentifier {
-  Orbyt = 'orbyt',
-  MediaProc = 'mediaproc',
-  DevForge = 'devforge',
-  Vaulta = 'vaulta',
-  DevCompanion = 'dev-companion',
-}
+// ============================================================================
+// USAGE INTERFACES
+// ============================================================================
 
 /**
  * Workflow-level usage tracking configuration
@@ -634,26 +444,16 @@ export interface StepUsage {
 
   /** Cost multiplier (default: 1) */
   weight?: number;
+
+  /** Cost estimation hint for billing */
+  costHint?: CostHint;
 }
 
 // ============================================================================
-// STEP TYPES
+// STEP INTERFACES
 // ============================================================================
 
-/**
- * Output mapping from step result to named outputs
- * 
- * @category Steps
- */
-export type StepOutputMapping = Record<string, string>;
 
-/**
- * Conditional execution expression
- * Supports ${inputs.*}, ${secrets.*}, ${steps.*.outputs.*}, ${context.*}
- * 
- * @category Steps
- */
-export type StepCondition = string;
 
 /**
  * Individual workflow step definition
@@ -815,6 +615,9 @@ export interface ExecutionStrategy {
 
   /** Execution priority */
   priority?: ExecutionPriority;
+
+  /** Strategy type for execution */
+  strategyType?: StrategyType;
 }
 
 // ============================================================================
@@ -839,7 +642,7 @@ export interface OutputSchema {
 }
 
 /**
- * Output contract definition
+ * Output schema mapping (override type alias with proper definition)
  * 
  * @category Contracts
  * @status future - reserved for type safety
@@ -862,6 +665,15 @@ export interface TelemetryConfig {
 
   /** Telemetry level */
   level?: TelemetryLevel;
+
+  /** Logs verbosity level */
+  logs?: LogsLevel;
+
+  /** Metrics collection level */
+  metrics?: MetricsLevel;
+
+  /** Trace collection level */
+  trace?: TraceLevel;
 
   /** Fields to redact from logs */
   redact?: string[];
@@ -933,6 +745,9 @@ export interface CompatibilityConfig {
 export interface FailureSemantics {
   /** Action on step failure */
   onStepFailure?: FailureAction;
+
+  /** Step-specific failure action */
+  stepAction?: StepFailureAction;
 
   /** Action on timeout */
   onTimeout?: TimeoutAction;
@@ -1089,60 +904,8 @@ export interface WorkflowDefinition {
   governance?: GovernanceConfig;
 }
 
-// ============================================================================
-// HELPER TYPES
-// ============================================================================
+// VariableReference, ActionReference, SecretReference are imported from workflow.type-aliases.ts
+// V1Field and FutureField markers are imported from workflow.type-aliases.ts
 
-/**
- * Variable reference pattern
- * Format: ${namespace.path.to.value}
- * 
- * Namespaces:
- * - inputs.*
- * - secrets.*
- * - steps.*.outputs.*
- * - context.*
- * - env.*
- * 
- * @category Variables
- */
-export type VariableReference = string;
-
-/**
- * Action reference pattern
- * Format: namespace.action or namespace.domain.action
- * 
- * Examples:
- * - mediaproc.image.resize
- * - cli.exec
- * - http.request
- * 
- * @category Actions
- */
-export type ActionReference = string;
-
-/**
- * Secret reference pattern
- * Format: provider:path
- * 
- * Examples:
- * - vaulta:mediaproc/api/key
- * - aws-secrets:prod/db/password
- * 
- * @category Secrets
- */
-export type SecretReference = string;
-
-// ============================================================================
-// VERSION MARKERS
-// ============================================================================
-
-/**
- * Marks fields that are implemented in v1
- */
-export type V1Field = unknown;
-
-/**
- * Marks fields that are reserved for future versions
- */
-export type FutureField = unknown;
+export * from './workflow.enums.js';
+export * from './workflow.type.js';

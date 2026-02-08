@@ -54,7 +54,7 @@ export * from './schemas/workflow.schema.zod.js';
 // WORKFLOW TYPES - TypeScript Definitions
 // ============================================================================
 
-export * from './types/workflow.types.js';
+export * from './types/workflow.interfaces.js';
 
 // ============================================================================
 // SCHEMA UTILITIES

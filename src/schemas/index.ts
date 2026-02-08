@@ -111,7 +111,7 @@ export {
   // Version Markers
   type V1Field,
   type FutureField,
-} from '../types/workflow.types.js';
+} from '../types/workflow.interfaces.js';
 
 // ============================================================================
 // VALIDATION HELPERS

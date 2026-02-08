@@ -265,6 +265,132 @@ export const StepUsageSchema = z.object({
 }).optional().describe('Step-level usage tracking override (production: per-step billing)');
 
 // ============================================================================
+// EXECUTION STRATEGY SCHEMAS
+// ============================================================================
+
+export const ExecutionStrategyConfigSchema = z.object({
+  type: z.enum(['sequential', 'parallel', 'matrix', 'fanout', 'map-reduce']).or(z.string()).optional()
+    .describe('Execution strategy type'),
+  maxParallel: z.number().int().min(1).optional()
+    .describe('Maximum parallel execution count'),
+  matrix: z.record(z.string(), z.array(z.any())).optional()
+    .describe('Matrix dimensions for matrix strategy'),
+}).optional().describe('Execution strategy configuration (production: universal patterns)');
+
+// ============================================================================
+// CAPABILITY & REQUIREMENTS SCHEMAS
+// ============================================================================
+
+export const StepRequirementsSchema = z.object({
+  capabilities: z.array(z.string()).optional()
+    .describe('Required capabilities (e.g., filesystem.write, network.http, gpu.optional)'),
+}).passthrough().optional().describe('Step capability requirements (future: platform-agnostic)');
+
+// ============================================================================  
+// EXECUTION HINTS SCHEMAS
+// ============================================================================
+
+export const ExecutionHintsSchema = z.object({
+  cacheable: z.boolean().optional().describe('Can results be cached'),
+  idempotent: z.boolean().optional().describe('Is step idempotent'),
+  heavy: z.boolean().optional().describe('Is step computationally heavy'),
+  cost: z.enum(['free', 'low', 'medium', 'high']).or(z.string()).optional()
+    .describe('Cost classification'),
+}).passthrough().optional().describe('Execution hints for optimization (future: smart execution)');
+
+// ============================================================================
+// DATA CONTRACTS SCHEMAS
+// ============================================================================
+
+export const SchemaReferenceSchema = z.object({
+  schema: z.string().optional().describe('Schema file path or URL'),
+  inline: z.record(z.string(), z.any()).optional().describe('Inline schema definition'),
+}).describe('Schema reference');
+
+export const StepContractsSchema = z.object({
+  input: SchemaReferenceSchema.optional().describe('Input schema'),
+  output: SchemaReferenceSchema.optional().describe('Output schema'),
+}).optional().describe('Step data contracts (future: validation & reliability)');
+
+// ============================================================================
+// ENVIRONMENT PROFILES SCHEMAS
+// ============================================================================
+
+export const EnvironmentProfileSchema = z.object({
+  adapter: z.string().optional().describe('Adapter override for this environment'),
+  resources: z.object({
+    cpu: z.union([z.number(), z.string()]).optional(),
+    memory: z.string().optional(),
+    disk: z.string().optional(),
+    gpu: z.union([z.number(), z.string()]).optional(),
+  }).optional().describe('Resources for this environment'),
+}).passthrough().describe('Environment-specific configuration');
+
+export const EnvironmentProfilesSchema = z.record(z.string(), EnvironmentProfileSchema)
+  .optional()
+  .describe('Environment profiles map (future: write once, run anywhere)');
+
+// ============================================================================
+// STEP FAILURE HANDLING SCHEMAS
+// ============================================================================
+
+export const FailureNotificationSchema = z.object({
+  channel: z.string().optional().describe('Notification channel (e.g., slack, email)'),
+}).passthrough().describe('Notification configuration');
+
+export const StepOnFailureSchema = z.object({
+  action: z.enum(['retry', 'skip', 'compensate', 'notify', 'abort']).or(z.string()).optional()
+    .describe('Action to take on failure'),
+  notify: FailureNotificationSchema.optional().describe('Notification configuration'),
+  compensate: z.string().optional().describe('Compensation workflow reference'),
+}).optional().describe('Step-level failure handling (future: enterprise control)');
+
+// ============================================================================
+// TELEMETRY SCHEMAS
+// ============================================================================
+
+export const StepTelemetrySchema = z.object({
+  trace: z.union([z.boolean(), z.enum(['off', 'minimal', 'standard', 'detailed'])]).optional()
+    .describe('Enable tracing'),
+  metrics: z.enum(['off', 'basic', 'detailed']).or(z.string()).optional()
+    .describe('Metrics detail level'),
+  logs: z.enum(['off', 'minimal', 'standard', 'verbose']).or(z.string()).optional()
+    .describe('Logs detail level'),
+}).optional().describe('Step-level telemetry configuration (future: monitoring)');
+
+// ============================================================================
+// COMPLIANCE SCHEMAS
+// ============================================================================
+
+export const DataClassificationSchema = z.object({
+  pii: z.boolean().optional().describe('Contains PII'),
+  retention: z.object({
+    logs: z.string().optional().describe('Log retention (e.g., 30d)'),
+    outputs: z.string().optional().describe('Output retention (e.g., 90d)'),
+  }).optional().describe('Data retention policies'),
+}).passthrough().describe('Data classification');
+
+export const ComplianceSchema = z.object({
+  data: DataClassificationSchema.optional().describe('Data classification'),
+}).passthrough().optional().describe('Compliance metadata (future: regulated environments)');
+
+// ============================================================================  
+// PROVENANCE SCHEMAS
+// ============================================================================
+
+export const SourceRepositorySchema = z.object({
+  repo: z.string().optional().describe('Repository URL'),
+  commit: z.string().optional().describe('Commit hash'),
+  branch: z.string().optional().describe('Branch name'),
+}).describe('Source repository information');
+
+export const ProvenanceSchema = z.object({
+  generatedBy: z.string().optional().describe('Tool or system that generated this workflow'),
+  source: SourceRepositorySchema.optional().describe('Source repository information'),
+  generatedAt: z.string().datetime().optional().describe('Generation timestamp'),
+}).passthrough().optional().describe('Workflow provenance tracking (future: AI-generated & audit)');
+
+// ============================================================================
 // STEP SCHEMA
 // ============================================================================
 
@@ -307,10 +433,28 @@ export const StepSchema = z.object({
   usage: StepUsageSchema
     .describe('Usage tracking override (production: per-step billing)'),
 
-  // Future-safe fields
-  outputsSchema: OutputsSchemaSchema
-    .describe('Output schema for validation (future)'),
-
+  // Production-ready universal fields
+  ref: z.string().optional()
+    .describe('Versioned step reference (e.g., mediaproc.image.resize@^1)'),
+  
+  requires: StepRequirementsSchema
+    .describe('Capability requirements (future: platform-agnostic execution)'),
+  
+  hints: ExecutionHintsSchema
+    .describe('Execution hints for optimization (future: smart execution)'),
+  
+  contracts: StepContractsSchema
+    .describe('Data contracts for validation (future: reliability)'),
+  
+  profiles: EnvironmentProfilesSchema
+    .describe('Environment-specific profiles (future: portability)'),
+  
+  onFailure: StepOnFailureSchema
+    .describe('Failure handling configuration (future: enterprise control)'),
+  
+  telemetry: StepTelemetrySchema
+    .describe('Telemetry configuration (future: monitoring)'),
+  
   rollback: StepRollbackSchema.optional()
     .describe('Step-level rollback logic (future)'),
 }).describe('Individual workflow step definition');
@@ -362,10 +506,19 @@ export const OrbytWorkflowSchema = z.object({
   usage: WorkflowUsageSchema
     .describe('Usage tracking configuration (production: minimal, final)'),
 
-  // Future-safe fields
-  identity: IdentitySchema
-    .describe('Workflow identity and lineage (future: traceability)'),
-
+  // Production-ready universal fields
+  strategy: ExecutionStrategyConfigSchema
+    .describe('Execution strategy (production: universal patterns)'),
+  
+  profiles: EnvironmentProfilesSchema
+    .describe('Environment-specific profiles (future: write once, run anywhere)'),
+  
+  compliance: ComplianceSchema
+    .describe('Compliance metadata (future: regulated environments)'),
+  
+  provenance: ProvenanceSchema
+    .describe('Provenance tracking (future: AI-generated workflows & audit)'),
+  
   execution: ExecutionStrategySchema
     .describe('Execution strategy (future: multi-environment)'),
 
