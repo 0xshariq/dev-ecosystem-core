@@ -153,6 +153,118 @@ export const ResourcesSchema = z.object({
 }).passthrough().describe('Resource constraints for execution');
 
 // ============================================================================
+// FUTURE-SAFE SCHEMAS
+// ============================================================================
+
+// 1. Identity & Lineage
+export const WorkflowSourceSchema = z.object({
+  type: z.enum(['marketplace', 'local', 'generated', 'api']),
+  ref: z.string().optional(),
+}).describe('Workflow source information');
+
+export const IdentitySchema = z.object({
+  workflowId: z.string().optional(),
+  parentWorkflow: z.string().optional(),
+  source: WorkflowSourceSchema.optional(),
+}).optional().describe('Workflow identity and lineage tracking (future: traceability)');
+
+// 2. Execution Strategy
+export const ExecutionStrategySchema = z.object({
+  mode: z.enum(['local', 'docker', 'remote', 'distributed']).optional(),
+  isolation: z.enum(['process', 'container', 'vm']).optional(),
+  priority: z.enum(['low', 'normal', 'high']).optional(),
+}).optional().describe('Execution strategy and runtime configuration (future: multi-environment)');
+
+// 3. Output Contracts
+export const OutputSchemaDefinitionSchema = z.object({
+  type: z.enum(['string', 'number', 'boolean', 'array', 'object']),
+  required: z.boolean().optional(),
+  description: z.string().optional(),
+}).describe('Output schema definition');
+
+export const OutputsSchemaSchema = z.record(z.string(), OutputSchemaDefinitionSchema)
+  .optional()
+  .describe('Output contract definition (future: type safety)');
+
+// 4. Telemetry Controls
+export const TelemetrySchema = z.object({
+  enabled: z.boolean().optional(),
+  level: z.enum(['minimal', 'standard', 'verbose']).optional(),
+  redact: z.array(z.string()).optional(),
+}).optional().describe('Telemetry and observability controls (future: privacy)');
+
+// 5. Cost & Usage Accounting
+export const AccountingSchema = z.object({
+  billable: z.boolean().optional(),
+  unit: z.enum(['execution', 'step', 'minute']).optional(),
+  tags: z.record(z.string(), z.string()).optional(),
+}).optional().describe('Cost and usage accounting (future: monetization)');
+
+// 6. Version Compatibility
+export const EngineCompatibilitySchema = z.object({
+  min: z.string().optional(),
+  max: z.string().optional(),
+}).describe('Engine version constraints');
+
+export const CompatibilitySchema = z.object({
+  engine: EngineCompatibilitySchema.optional(),
+  adapters: z.record(z.string(), z.string()).optional(),
+}).optional().describe('Version compatibility constraints (future: safe upgrades)');
+
+// 7. Failure Semantics
+export const FailureSemanticsSchema = z.object({
+  onStepFailure: z.enum(['retry', 'skip', 'rollback', 'isolate', 'abort']).optional(),
+  onTimeout: z.enum(['abort', 'retry', 'partial']).optional(),
+}).optional().describe('Advanced failure handling semantics (future: complex workflows)');
+
+// 8. Rollback & Compensation
+export const StepRollbackSchema = z.object({
+  uses: z.string(),
+  with: z.record(z.string(), z.any()).optional(),
+}).describe('Step-level rollback configuration');
+
+export const RollbackSchema = z.object({
+  enabled: z.boolean().optional(),
+  strategy: z.enum(['reverse', 'custom']).optional(),
+}).optional().describe('Workflow-level rollback configuration (future: transactional workflows)');
+
+// 9. Governance
+export const GovernanceSchema = z.object({
+  reviewers: z.array(z.string()).optional(),
+  approvalRequired: z.boolean().optional(),
+}).passthrough().optional().describe('Governance and team metadata (future: enterprise)');
+
+// ============================================================================
+// USAGE & COUNTING SCHEMAS
+// ============================================================================
+
+/**
+ * Workflow-level usage tracking schema
+ * Engine counts, bridges transport, website displays
+ */
+export const WorkflowUsageSchema = z.object({
+  track: z.boolean().optional().describe('Enable usage tracking for this workflow'),
+  scope: z.enum(['ecosystem', 'component', 'workflow']).or(z.string()).optional()
+    .describe('Aggregation scope'),
+  category: z.enum(['automation', 'pipeline', 'batch', 'job']).or(z.string()).optional()
+    .describe('Usage category for billing'),
+  billable: z.boolean().optional().describe('Whether this workflow is billable'),
+  product: z.enum(['orbyt', 'mediaproc', 'devforge', 'vaulta', 'dev-companion']).or(z.string()).optional()
+    .describe('Product/component identifier'),
+  tags: z.array(z.string()).optional().describe('Tags for analytics'),
+}).optional().describe('Usage tracking configuration (production: minimal, final)');
+
+/**
+ * Step-level usage tracking schema
+ * Allows per-step billing customization
+ */
+export const StepUsageSchema = z.object({
+  billable: z.boolean().optional().describe('Override workflow billable setting'),
+  unit: z.string().optional().describe('Billing unit (e.g., request, execution, second)'),
+  weight: z.number().min(0).optional().describe('Cost multiplier (default: 1)'),
+}).optional().describe('Step-level usage tracking override (production: per-step billing)');
+
+// ============================================================================
 // STEP SCHEMA
 // ============================================================================
 
@@ -160,36 +272,47 @@ export const StepSchema = z.object({
   id: z.string()
     .regex(/^[a-zA-Z][a-zA-Z0-9_-]*$/, 'Step ID must start with letter and contain only alphanumeric, underscore, or hyphen')
     .describe('Unique step identifier'),
-  
+
   name: z.string().optional().describe('Human-readable step name'),
-  
+
   uses: z.string()
     .regex(/^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/, 'uses must be in format: namespace.action or namespace.domain.action')
     .describe('Action to execute - universal adapter reference'),
-  
+
   with: z.record(z.string(), z.any()).optional()
     .describe('Adapter-specific input parameters. Supports variable interpolation.'),
-  
+
   when: z.string().optional()
     .describe('Conditional execution expression'),
-  
+
   needs: z.array(z.string()).optional()
     .describe('Explicit step dependencies'),
-  
+
   retry: RetryConfigSchema.optional()
     .describe('Step-specific retry config (overrides defaults)'),
-  
+
   timeout: z.string().regex(/^[0-9]+(ms|s|m|h)$/).optional()
     .describe('Step execution timeout'),
-  
+
   continueOnError: z.boolean().default(false)
     .describe('Continue workflow even if step fails'),
-  
+
   outputs: z.record(z.string(), z.string()).optional()
     .describe('Map step outputs to named values'),
-  
+
   env: z.record(z.string(), z.string()).optional()
     .describe('Environment variables for this step'),
+
+  // Usage tracking
+  usage: StepUsageSchema
+    .describe('Usage tracking override (production: per-step billing)'),
+
+  // Future-safe fields
+  outputsSchema: OutputsSchemaSchema
+    .describe('Output schema for validation (future)'),
+
+  rollback: StepRollbackSchema.optional()
+    .describe('Step-level rollback logic (future)'),
 }).describe('Individual workflow step definition');
 
 // ============================================================================
@@ -208,11 +331,11 @@ export const OrbytWorkflowSchema = z.object({
   version: z.string()
     .regex(/^[0-9]+\.[0-9]+(\.[0-9]+)?$/, 'Version must follow semantic versioning (e.g., 1.0 or 1.0.0)')
     .describe('Schema version'),
-  
+
   kind: z.enum(['workflow', 'pipeline', 'job', 'playbook', 'automation'])
     .default('workflow')
     .describe('Type of executable'),
-  
+
   metadata: MetadataSchema.optional(),
   annotations: AnnotationsSchema.optional(),
   triggers: z.array(TriggerSchema).optional(),
@@ -223,17 +346,49 @@ export const OrbytWorkflowSchema = z.object({
   policies: PoliciesSchema.optional(),
   permissions: PermissionsSchema.optional(),
   resources: ResourcesSchema.optional(),
-  
+
   workflow: WorkflowBodySchema.describe('Core workflow execution definition'),
-  
+
   outputs: z.record(z.string(), z.string()).optional()
     .describe('Final workflow outputs returned to caller'),
-  
+
   on: z.object({
     success: z.array(z.any()).optional(),
     failure: z.array(z.any()).optional(),
     always: z.array(z.any()).optional(),
   }).optional().describe('Lifecycle hooks (reserved for future)'),
+
+  // Usage tracking
+  usage: WorkflowUsageSchema
+    .describe('Usage tracking configuration (production: minimal, final)'),
+
+  // Future-safe fields
+  identity: IdentitySchema
+    .describe('Workflow identity and lineage (future: traceability)'),
+
+  execution: ExecutionStrategySchema
+    .describe('Execution strategy (future: multi-environment)'),
+
+  outputsSchema: OutputsSchemaSchema
+    .describe('Output schema for validation (future: type safety)'),
+
+  telemetry: TelemetrySchema
+    .describe('Telemetry controls (future: privacy)'),
+
+  accounting: AccountingSchema
+    .describe('Cost and usage accounting (future: monetization)'),
+
+  compatibility: CompatibilitySchema
+    .describe('Version compatibility (future: safe upgrades)'),
+
+  failurePolicy: FailureSemanticsSchema
+    .describe('Failure semantics (future: complex workflows)'),
+
+  rollback: RollbackSchema
+    .describe('Rollback configuration (future: transactional workflows)'),
+
+  governance: GovernanceSchema
+    .describe('Governance metadata (future: enterprise)'),
 })
   .strict() // No additional properties allowed at root level
   .describe('Complete Orbyt workflow definition');

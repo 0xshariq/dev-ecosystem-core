@@ -328,6 +328,196 @@
       },
       "additionalProperties": true
     },
+    "identity": {
+      "type": "object",
+      "description": "Workflow identity and lineage tracking. Reserved for traceability and forking workflows.",
+      "properties": {
+        "workflowId": {
+          "type": "string",
+          "description": "Unique workflow identifier",
+          "examples": ["wf-uuid-1234"]
+        },
+        "parentWorkflow": {
+          "type": "string",
+          "description": "Parent workflow ID if this was forked",
+          "examples": ["wf-uuid-0001"]
+        },
+        "source": {
+          "type": "object",
+          "description": "Workflow source information",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["marketplace", "local", "generated", "api"],
+              "description": "Source type"
+            },
+            "ref": {
+              "type": "string",
+              "description": "Source reference (e.g., marketplace URL)",
+              "examples": ["orbyt.marketplace/image-pipeline@1.2.0"]
+            }
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "Execution strategy and runtime configuration. Reserved for multi-environment support.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["local", "docker", "remote", "distributed"],
+          "description": "Execution mode"
+        },
+        "isolation": {
+          "type": "string",
+          "enum": ["process", "container", "vm"],
+          "description": "Isolation level"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high"],
+          "description": "Execution priority"
+        }
+      }
+    },
+    "outputsSchema": {
+      "type": "object",
+      "description": "Schema definition for workflow outputs. Reserved for compile-time validation.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "array", "object"]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "description": "Telemetry and observability controls. Reserved for privacy controls.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable telemetry"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["minimal", "standard", "verbose"],
+          "description": "Telemetry level"
+        },
+        "redact": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Fields to redact from logs",
+          "examples": [["secrets.*", "inputs.password"]]
+        }
+      }
+    },
+    "accounting": {
+      "type": "object",
+      "description": "Cost and usage accounting. Reserved for monetization.",
+      "properties": {
+        "billable": {
+          "type": "boolean",
+          "description": "Whether execution is billable"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["execution", "step", "minute"],
+          "description": "Billing unit"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Custom accounting tags",
+          "examples": [{"project": "demo", "customer": "internal"}]
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "description": "Version compatibility and engine constraints. Reserved for safe upgrades.",
+      "properties": {
+        "engine": {
+          "type": "object",
+          "description": "Engine version requirements",
+          "properties": {
+            "min": {
+              "type": "string",
+              "description": "Minimum engine version",
+              "examples": ["0.4.0"]
+            },
+            "max": {
+              "type": "string",
+              "description": "Maximum engine version",
+              "examples": ["1.x"]
+            }
+          }
+        },
+        "adapters": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Required adapter versions",
+          "examples": [{"cli.exec": ">=0.2.0"}]
+        }
+      }
+    },
+    "failurePolicy": {
+      "type": "object",
+      "description": "Advanced failure handling semantics. Reserved for complex workflows.",
+      "properties": {
+        "onStepFailure": {
+          "type": "string",
+          "enum": ["retry", "skip", "rollback", "isolate", "abort"],
+          "description": "Action on step failure"
+        },
+        "onTimeout": {
+          "type": "string",
+          "enum": ["abort", "retry", "partial"],
+          "description": "Action on timeout"
+        }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "description": "Rollback and compensation configuration. Reserved for transactional workflows.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable rollback"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["reverse", "custom"],
+          "description": "Rollback strategy"
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "description": "Governance and team metadata. Reserved for enterprise features.",
+      "properties": {
+        "reviewers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required reviewers",
+          "examples": [["team-lead", "security-team"]]
+        },
+        "approvalRequired": {
+          "type": "boolean",
+          "description": "Whether approval is required before execution"
+        }
+      },
+      "additionalProperties": true
+    },
     "workflow": {
       "type": "object",
       "required": ["steps"],
@@ -436,6 +626,61 @@
                 "additionalProperties": {
                   "type": "string"
                 }
+              },
+              "usage": {
+                "type": "object",
+                "description": "Step-level usage tracking override. Allows per-step billing customization.",
+                "properties": {
+                  "billable": {
+                    "type": "boolean",
+                    "description": "Override workflow billable setting"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "description": "Billing unit (e.g., 'request', 'execution', 'second')",
+                    "examples": ["request", "execution", "second", "minute"]
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Cost multiplier (default: 1)",
+                    "default": 1
+                  }
+                }
+              },
+              "outputsSchema": {
+                "type": "object",
+                "description": "Schema definition for step outputs. Reserved for validation.",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["string", "number", "boolean", "array", "object"]
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "rollback": {
+                "type": "object",
+                "description": "Step-level rollback logic. Reserved for compensation.",
+                "properties": {
+                  "uses": {
+                    "type": "string",
+                    "description": "Rollback action"
+                  },
+                  "with": {
+                    "type": "object",
+                    "description": "Rollback input parameters",
+                    "additionalProperties": true
+                  }
+                }
               }
             }
           }
@@ -477,6 +722,48 @@
           "items": {
             "type": "object"
           }
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "description": "Usage tracking configuration. Engine counts automations and steps, bridges transport to website. Production-ready: minimal, final.",
+      "properties": {
+        "track": {
+          "type": "boolean",
+          "description": "Enable usage tracking for this workflow",
+          "default": true
+        },
+        "scope": {
+          "type": "string",
+          "description": "Aggregation scope for usage counting",
+          "enum": ["ecosystem", "component", "workflow"],
+          "examples": ["ecosystem", "component", "workflow"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Usage category for billing classification",
+          "enum": ["automation", "pipeline", "batch", "job"],
+          "examples": ["automation", "pipeline", "batch", "job"]
+        },
+        "billable": {
+          "type": "boolean",
+          "description": "Whether this workflow is billable",
+          "default": true
+        },
+        "product": {
+          "type": "string",
+          "description": "Product/component identifier for ecosystem aggregation",
+          "enum": ["orbyt", "mediaproc", "devforge", "vaulta", "dev-companion"],
+          "examples": ["orbyt", "mediaproc", "devforge"]
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for analytics and grouping",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["production", "media-processing"]]
         }
       }
     }
