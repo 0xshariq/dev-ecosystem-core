@@ -3,6 +3,8 @@
  * @module workflow.type-aliases
  */
 
+import type { CronTrigger, EventTrigger, ManualTrigger, OutputSchema, WebhookTrigger, WorkflowInputDefinition } from "./workflow.interfaces";
+
 /**
  * Scalar and complex input types for workflow variables
  */
@@ -152,3 +154,25 @@ export type AggregationConfig = Record<string, any>;
  * Parallel execution configuration
  */
 export type ParallelConfig = Record<string, any>;
+
+/**
+ * Union of all trigger types (override type alias with proper definition)
+ * 
+ * @category Triggers
+ */
+export type WorkflowTrigger = ManualTrigger | CronTrigger | EventTrigger | WebhookTrigger;
+
+/**
+ * Runtime parameters for workflow reusability (override type alias with proper definition)
+ * 
+ * @category Inputs
+ */
+export type WorkflowInputs = Record<string, WorkflowInputDefinition>;
+
+/**
+ * Output schema mapping (override type alias with proper definition)
+ * 
+ * @category Contracts
+ * @status future - reserved for type safety
+ */
+export type OutputsSchema = Record<string, OutputSchema>;
