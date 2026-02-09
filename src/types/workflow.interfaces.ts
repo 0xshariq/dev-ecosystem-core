@@ -17,7 +17,6 @@
 // IMPORTS
 // ============================================================================
 
-// Re-export for convenience
 import type {
   WorkflowKind,
   TriggerType,
@@ -52,6 +51,9 @@ import type {
   StepCondition,
   V1Field,
   FutureField,
+  OutputsSchema,
+  WorkflowTrigger,
+  WorkflowInputs,
 } from './workflow.type.js';
 
 // ============================================================================
@@ -174,13 +176,6 @@ export interface WebhookTrigger extends BaseTrigger {
   filters?: Record<string, any>;
 }
 
-/**
- * Union of all trigger types (override type alias with proper definition)
- * 
- * @category Triggers
- */
-export type WorkflowTrigger = ManualTrigger | CronTrigger | EventTrigger | WebhookTrigger;
-
 // ============================================================================
 // SECRETS INTERFACES
 // ============================================================================
@@ -223,13 +218,6 @@ export interface WorkflowInputDefinition {
   /** Human-readable description */
   description?: string;
 }
-
-/**
- * Runtime parameters for workflow reusability (override type alias with proper definition)
- * 
- * @category Inputs
- */
-export type WorkflowInputs = Record<string, WorkflowInputDefinition>;
 
 // ============================================================================
 // CONTEXT INTERFACES
@@ -640,14 +628,6 @@ export interface OutputSchema {
   /** Output description */
   description?: string;
 }
-
-/**
- * Output schema mapping (override type alias with proper definition)
- * 
- * @category Contracts
- * @status future - reserved for type safety
- */
-export type OutputsSchema = Record<string, OutputSchema>;
 
 // ============================================================================
 // TELEMETRY & OBSERVABILITY
