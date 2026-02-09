@@ -24,6 +24,10 @@ export const MetadataSchema = z.object({
   version: z.string().optional().describe('Workflow version (not schema version)'),
   createdAt: z.string().datetime().optional().describe('Creation timestamp'),
   updatedAt: z.string().datetime().optional().describe('Last update timestamp'),
+  
+  // Version tracking flags (future-safe)
+  v1: z.boolean().optional().describe('Marks workflow as using v1 features'),
+  future: z.boolean().optional().describe('Marks workflow as using future/experimental features'),
 }).passthrough().describe('Workflow metadata for organization and discovery');
 
 export const AnnotationsSchema = z.object({
