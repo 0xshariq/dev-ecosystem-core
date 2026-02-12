@@ -1,0 +1,160 @@
+{
+  "product": "mediaproc",
+  "version": "2.0.0",
+  "displayName": "MediaProc",
+  "description": "Advanced media processing CLI for images, videos, and audio",
+  "capabilities": [
+    {
+      "id": "image-processing",
+      "name": "Image Processing",
+      "description": "Comprehensive image manipulation and optimization",
+      "status": "stable",
+      "features": [
+        "Format conversion (JPEG, PNG, WebP, AVIF, GIF)",
+        "Resizing and scaling",
+        "Cropping and rotation",
+        "Filters and effects",
+        "Compression and optimization",
+        "Batch processing",
+        "Metadata extraction and editing"
+      ]
+    },
+    {
+      "id": "video-processing",
+      "name": "Video Processing",
+      "description": "Video conversion, editing, and optimization",
+      "status": "stable",
+      "features": [
+        "Format conversion (MP4, WebM, AVI, MOV)",
+        "Codec transcoding (H.264, H.265, VP9, AV1)",
+        "Resolution and bitrate adjustment",
+        "Trimming and cutting",
+        "Frame extraction",
+        "Subtitle embedding",
+        "Thumbnail generation"
+      ]
+    },
+    {
+      "id": "audio-processing",
+      "name": "Audio Processing",
+      "description": "Audio format conversion and manipulation",
+      "status": "stable",
+      "features": [
+        "Format conversion (MP3, AAC, WAV, FLAC, OGG)",
+        "Bitrate and quality adjustment",
+        "Normalization",
+        "Trimming and cutting",
+        "Metadata editing"
+      ]
+    },
+    {
+      "id": "batch-operations",
+      "name": "Batch Operations",
+      "description": "Process multiple files with single command",
+      "status": "stable",
+      "features": [
+        "Directory recursion",
+        "Pattern matching",
+        "Parallel processing",
+        "Progress tracking",
+        "Error handling and recovery"
+      ]
+    },
+    {
+      "id": "pipeline-mode",
+      "name": "Pipeline Mode",
+      "description": "Chain multiple operations in a single pipeline",
+      "status": "beta",
+      "features": [
+        "Sequential operations",
+        "Intermediate caching",
+        "Pipeline optimization",
+        "Dry-run mode"
+      ]
+    },
+    {
+      "id": "presets",
+      "name": "Processing Presets",
+      "description": "Predefined profiles for common use cases",
+      "status": "stable",
+      "features": [
+        "Web optimization presets",
+        "Social media presets",
+        "Custom preset creation",
+        "Preset sharing and import"
+      ]
+    },
+    {
+      "id": "history-tracking",
+      "name": "History Tracking",
+      "description": "Track and replay processing commands",
+      "status": "stable",
+      "features": [
+        "Command history",
+        "Operation replay",
+        "History search and filter",
+        "Statistics and analytics"
+      ]
+    },
+    {
+      "id": "explain-mode",
+      "name": "Explain Mode",
+      "description": "Learn about processing options and parameters",
+      "status": "stable",
+      "features": [
+        "Parameter explanations",
+        "Format information",
+        "Codec details",
+        "Best practices"
+      ]
+    },
+    {
+      "id": "cloud-storage",
+      "name": "Cloud Storage Integration",
+      "description": "Direct integration with cloud storage providers",
+      "status": "future",
+      "features": [
+        "S3 integration",
+        "Google Cloud Storage",
+        "Azure Blob Storage"
+      ]
+    },
+    {
+      "id": "ai-processing",
+      "name": "AI-Powered Processing",
+      "description": "AI-based media enhancement and analysis",
+      "status": "future",
+      "features": [
+        "Image upscaling",
+        "Object detection",
+        "Content moderation",
+        "Auto-tagging"
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "name": "FFmpeg",
+      "description": "Video and audio processing",
+      "status": "stable",
+      "required": true
+    },
+    {
+      "name": "Sharp",
+      "description": "High-performance image processing",
+      "status": "stable",
+      "required": true
+    },
+    {
+      "name": "Orbyt",
+      "description": "Workflow automation",
+      "status": "planned"
+    }
+  ],
+  "platforms": ["linux", "darwin", "win32"],
+  "requirements": {
+    "node": ">=18.0.0",
+    "ffmpeg": ">=4.0.0",
+    "dependencies": ["sharp", "fluent-ffmpeg"]
+  }
+}

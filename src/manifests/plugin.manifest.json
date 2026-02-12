@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plugin Manifest",
+  "description": "Manifest file for ecosystem plugins",
+  "type": "object",
+  "required": ["id", "name", "version", "entrypoint"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique plugin identifier"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable plugin name"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Display name for UI"
+    },
+    "description": {
+      "type": "string",
+      "description": "Plugin description"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author name or email"
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier"
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "repository": {
+      "type": "string",
+      "format": "uri"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "entrypoint": {
+      "type": "string",
+      "description": "Main plugin file (relative path)"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Plugin IDs this plugin depends on"
+    },
+    "peerDependencies": {
+      "type": "object",
+      "description": "NPM peer dependencies"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["hooks", "commands", "adapters", "ui", "api"]
+      },
+      "description": "Plugin capabilities"
+    },
+    "hooks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["beforeInit", "afterInit", "beforeExecute", "afterExecute", "beforeShutdown", "afterShutdown", "onError", "onEvent"]
+      },
+      "description": "Lifecycle hooks this plugin registers"
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "aliases": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      },
+      "description": "CLI commands this plugin provides"
+    },
+    "configuration": {
+      "type": "object",
+      "description": "JSON Schema for plugin configuration"
+    },
+    "engines": {
+      "type": "object",
+      "properties": {
+        "node": {"type": "string"},
+        "orbyt": {"type": "string"},
+        "mediaproc": {"type": "string"},
+        "devforge": {"type": "string"}
+      },
+      "description": "Compatible engine versions"
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "product": "devforge",
+  "version": "1.0.0",
+  "displayName": "DevForge",
+  "description": "AI-powered code generation and development workflow automation",
+  "capabilities": [
+    {
+      "id": "code-generation",
+      "name": "Code Generation",
+      "description": "Generate code from natural language descriptions",
+      "status": "planned",
+      "features": [
+        "Natural language to code",
+        "Multiple language support",
+        "Context-aware generation",
+        "Code style configuration"
+      ]
+    },
+    {
+      "id": "template-engine",
+      "name": "Template Engine",
+      "description": "Project scaffolding with customizable templates",
+      "status": "planned",
+      "features": [
+        "Built-in templates",
+        "Custom template creation",
+        "Variable interpolation",
+        "Conditional file generation"
+      ]
+    },
+    {
+      "id": "workflow-automation",
+      "name": "Development Workflow Automation",
+      "description": "Automate repetitive development tasks",
+      "status": "planned",
+      "features": [
+        "Git workflow automation",
+        "PR creation and management",
+        "Code review automation",
+        "Dependency updates"
+      ]
+    },
+    {
+      "id": "ai-assistance",
+      "name": "AI Development Assistant",
+      "description": "AI-powered development suggestions and guidance",
+      "status": "future",
+      "features": [
+        "Code completion",
+        "Bug detection",
+        "Performance optimization suggestions",
+        "Architecture recommendations"
+      ]
+    },
+    {
+      "id": "testing-automation",
+      "name": "Testing Automation",
+      "description": "Automated test generation and execution",
+      "status": "future",
+      "features": [
+        "Unit test generation",
+        "Integration test scaffolding",
+        "Test coverage analysis",
+        "Test execution workflows"
+      ]
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation Generation",
+      "description": "Automated documentation from code",
+      "status": "future",
+      "features": [
+        "API documentation",
+        "README generation",
+        "Inline comment generation",
+        "Architecture diagrams"
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "name": "Orbyt",
+      "description": "Workflow execution engine",
+      "status": "planned"
+    },
+    {
+      "name": "GitHub",
+      "description": "Repository and PR management",
+      "status": "planned"
+    },
+    {
+      "name": "GitLab",
+      "description": "Repository and MR management",
+      "status": "future"
+    },
+    {
+      "name": "Vaulta",
+      "description": "Secret management",
+      "status": "future"
+    }
+  ],
+  "platforms": ["linux", "darwin", "win32"],
+  "requirements": {
+    "node": ">=18.0.0",
+    "dependencies": ["@dev-ecosystem/core", "openai"]
+  }
+}

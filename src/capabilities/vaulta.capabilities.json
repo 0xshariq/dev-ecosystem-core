@@ -1,0 +1,158 @@
+{
+  "product": "vaulta",
+  "version": "1.0.0",
+  "displayName": "Vaulta",
+  "description": "Secure secret management and credential storage for the dev-ecosystem",
+  "capabilities": [
+    {
+      "id": "secret-storage",
+      "name": "Secret Storage",
+      "description": "Secure storage for secrets and credentials",
+      "status": "planned",
+      "features": [
+        "Encrypted storage",
+        "Key-value interface",
+        "Secret versioning",
+        "Metadata tagging",
+        "Expiration policies"
+      ]
+    },
+    {
+      "id": "encryption",
+      "name": "Encryption",
+      "description": "Multiple encryption algorithms and key derivation",
+      "status": "planned",
+      "features": [
+        "AES-256-GCM",
+        "ChaCha20-Poly1305",
+        "PBKDF2 key derivation",
+        "Argon2 key derivation",
+        "Hardware security module support"
+      ]
+    },
+    {
+      "id": "access-control",
+      "name": "Access Control",
+      "description": "Fine-grained access control and permissions",
+      "status": "planned",
+      "features": [
+        "User-based access",
+        "Token-based authentication",
+        "Role-based permissions",
+        "Audit logging"
+      ]
+    },
+    {
+      "id": "secret-rotation",
+      "name": "Secret Rotation",
+      "description": "Automated secret rotation and expiration",
+      "status": "future",
+      "features": [
+        "Automatic rotation policies",
+        "Expiration notifications",
+        "Version history",
+        "Rollback support"
+      ]
+    },
+    {
+      "id": "backends",
+      "name": "Multiple Backends",
+      "description": "Support for various storage backends",
+      "status": "planned",
+      "features": [
+        "Local file storage",
+        "HashiCorp Vault",
+        "AWS Secrets Manager",
+        "Azure Key Vault",
+        "GCP Secret Manager"
+      ]
+    },
+    {
+      "id": "cli",
+      "name": "CLI Interface",
+      "description": "Command-line interface for secret management",
+      "status": "planned",
+      "features": [
+        "CRUD operations",
+        "Interactive prompts",
+        "Bulk operations",
+        "Export/import"
+      ]
+    },
+    {
+      "id": "sdk",
+      "name": "SDK Integration",
+      "description": "Programmatic access via SDKs",
+      "status": "planned",
+      "features": [
+        "Node.js SDK",
+        "Python SDK",
+        "Rust SDK",
+        "REST API"
+      ]
+    },
+    {
+      "id": "audit",
+      "name": "Audit Logging",
+      "description": "Comprehensive audit trail",
+      "status": "future",
+      "features": [
+        "Access logs",
+        "Modification history",
+        "Failed attempt tracking",
+        "Log export and analysis"
+      ]
+    },
+    {
+      "id": "backup",
+      "name": "Backup and Restore",
+      "description": "Encrypted backup and disaster recovery",
+      "status": "future",
+      "features": [
+        "Encrypted backups",
+        "Point-in-time restore",
+        "Automated backup schedules",
+        "Cloud backup integration"
+      ]
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance Features",
+      "description": "Meet regulatory compliance requirements",
+      "status": "future",
+      "features": [
+        "SOC 2 compliance",
+        "GDPR support",
+        "HIPAA compatibility",
+        "PCI-DSS support"
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "name": "Orbyt",
+      "description": "Workflow secret injection",
+      "status": "planned"
+    },
+    {
+      "name": "DevForge",
+      "description": "Development credential management",
+      "status": "planned"
+    },
+    {
+      "name": "MediaProc",
+      "description": "API key storage for cloud services",
+      "status": "future"
+    },
+    {
+      "name": "HashiCorp Vault",
+      "description": "Enterprise secret backend",
+      "status": "future"
+    }
+  ],
+  "platforms": ["linux", "darwin", "win32"],
+  "requirements": {
+    "rust": ">=1.70.0",
+    "dependencies": ["tokio", "serde", "aes-gcm"]
+  }
+}

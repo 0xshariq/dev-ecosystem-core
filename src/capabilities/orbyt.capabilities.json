@@ -1,0 +1,146 @@
+{
+  "product": "orbyt",
+  "version": "1.0.0",
+  "displayName": "Orbyt Workflow Engine",
+  "description": "Universal workflow automation engine with adapter-based execution",
+  "capabilities": [
+    {
+      "id": "workflow-execution",
+      "name": "Workflow Execution",
+      "description": "Execute YAML-based workflows with step dependencies",
+      "status": "stable",
+      "features": [
+        "Sequential and parallel execution",
+        "Step dependency resolution (needs)",
+        "Conditional execution (when)",
+        "Variable interpolation",
+        "Dry-run mode"
+      ]
+    },
+    {
+      "id": "universal-adapters",
+      "name": "Universal Adapter System",
+      "description": "Extensible adapter system for executing diverse actions",
+      "status": "stable",
+      "features": [
+        "Shell command execution",
+        "HTTP requests",
+        "File operations",
+        "Cloud service integrations (AWS, Azure, GCP)",
+        "Database operations",
+        "Custom adapter development"
+      ]
+    },
+    {
+      "id": "state-management",
+      "name": "State Management",
+      "description": "Workflow and step state tracking and persistence",
+      "status": "stable",
+      "features": [
+        "In-memory state storage",
+        "File-based persistence",
+        "State snapshots",
+        "Resume from failure"
+      ]
+    },
+    {
+      "id": "lifecycle-hooks",
+      "name": "Lifecycle Hooks",
+      "description": "User-defined hooks at workflow and step lifecycle events",
+      "status": "stable",
+      "features": [
+        "beforeWorkflow / afterWorkflow",
+        "beforeStep / afterStep",
+        "onError / onRetry",
+        "onPause / onResume"
+      ]
+    },
+    {
+      "id": "event-bus",
+      "name": "Event Bus",
+      "description": "Internal pub/sub system for workflow events",
+      "status": "stable",
+      "features": [
+        "Typed event emission",
+        "Wildcard subscriptions",
+        "Async event handling",
+        "Error isolation"
+      ]
+    },
+    {
+      "id": "retry-logic",
+      "name": "Retry Logic",
+      "description": "Configurable retry strategies for failed steps",
+      "status": "stable",
+      "features": [
+        "Fixed, linear, exponential backoff",
+        "Configurable delays",
+        "Selective error retrying",
+        "Workflow and step-level configuration"
+      ]
+    },
+    {
+      "id": "timeout-management",
+      "name": "Timeout Management",
+      "description": "Step and workflow-level timeout enforcement",
+      "status": "stable",
+      "features": [
+        "Configurable timeouts",
+        "Graceful cancellation",
+        "Timeout events"
+      ]
+    },
+    {
+      "id": "triggers",
+      "name": "Workflow Triggers",
+      "description": "Multiple trigger types for workflow execution",
+      "status": "planned",
+      "features": [
+        "Manual triggers",
+        "Cron schedules",
+        "Event-based triggers",
+        "Webhook triggers"
+      ]
+    },
+    {
+      "id": "scheduling",
+      "name": "Workflow Scheduling",
+      "description": "Cron-based workflow scheduling",
+      "status": "planned"
+    },
+    {
+      "id": "distributed-execution",
+      "name": "Distributed Execution",
+      "description": "Execute workflows across multiple nodes",
+      "status": "future"
+    },
+    {
+      "id": "observability",
+      "name": "Observability",
+      "description": "Metrics, tracing, and logging integration",
+      "status": "future"
+    }
+  ],
+  "integrations": [
+    {
+      "name": "Vaulta",
+      "description": "Secure secret management",
+      "status": "planned"
+    },
+    {
+      "name": "DevForge",
+      "description": "Code generation workflows",
+      "status": "planned"
+    },
+    {
+      "name": "MediaProc",
+      "description": "Media processing pipelines",
+      "status": "future"
+    }
+  ],
+  "platforms": ["linux", "darwin", "win32"],
+  "requirements": {
+    "node": ">=18.0.0",
+    "dependencies": ["zod", "yaml"]
+  }
+}
