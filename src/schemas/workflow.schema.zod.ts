@@ -24,7 +24,7 @@ export const MetadataSchema = z.object({
   version: z.string().optional().describe('Workflow version (not schema version)'),
   createdAt: z.string().datetime().optional().describe('Creation timestamp'),
   updatedAt: z.string().datetime().optional().describe('Last update timestamp'),
-  
+
   // Version tracking flags (future-safe)
   v1: z.boolean().optional().describe('Marks workflow as using v1 features'),
   future: z.boolean().optional().describe('Marks workflow as using future/experimental features'),
@@ -440,25 +440,25 @@ export const StepSchema = z.object({
   // Production-ready universal fields
   ref: z.string().optional()
     .describe('Versioned step reference (e.g., mediaproc.image.resize@^1)'),
-  
+
   requires: StepRequirementsSchema
     .describe('Capability requirements (future: platform-agnostic execution)'),
-  
+
   hints: ExecutionHintsSchema
     .describe('Execution hints for optimization (future: smart execution)'),
-  
+
   contracts: StepContractsSchema
     .describe('Data contracts for validation (future: reliability)'),
-  
+
   profiles: EnvironmentProfilesSchema
     .describe('Environment-specific profiles (future: portability)'),
-  
+
   onFailure: StepOnFailureSchema
     .describe('Failure handling configuration (future: enterprise control)'),
-  
+
   telemetry: StepTelemetrySchema
     .describe('Telemetry configuration (future: monitoring)'),
-  
+
   rollback: StepRollbackSchema.optional()
     .describe('Step-level rollback logic (future)'),
 }).describe('Individual workflow step definition');
@@ -513,16 +513,16 @@ export const OrbytWorkflowSchema = z.object({
   // Production-ready universal fields
   strategy: ExecutionStrategyConfigSchema
     .describe('Execution strategy (production: universal patterns)'),
-  
+
   profiles: EnvironmentProfilesSchema
     .describe('Environment-specific profiles (future: write once, run anywhere)'),
-  
+
   compliance: ComplianceSchema
     .describe('Compliance metadata (future: regulated environments)'),
-  
+
   provenance: ProvenanceSchema
     .describe('Provenance tracking (future: AI-generated workflows & audit)'),
-  
+
   execution: ExecutionStrategySchema
     .describe('Execution strategy (future: multi-environment)'),
 
