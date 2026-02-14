@@ -433,24 +433,24 @@ export const StepSchema = z.object({
   env: z.record(z.string(), z.string()).optional()
     .describe('Environment variables for this step'),
 
-  // Usage tracking
-  usage: StepUsageSchema
+  // Usage tracking (engine-controlled, users should not set this)
+  usage: StepUsageSchema.optional()
     .describe('Usage tracking override (production: per-step billing)'),
 
   // Production-ready universal fields
   ref: z.string().optional()
     .describe('Versioned step reference (e.g., mediaproc.image.resize@^1)'),
 
-  requires: StepRequirementsSchema
+  requires: StepRequirementsSchema.optional()
     .describe('Capability requirements (future: platform-agnostic execution)'),
 
-  hints: ExecutionHintsSchema
+  hints: ExecutionHintsSchema.optional()
     .describe('Execution hints for optimization (future: smart execution)'),
 
-  contracts: StepContractsSchema
+  contracts: StepContractsSchema.optional()
     .describe('Data contracts for validation (future: reliability)'),
 
-  profiles: EnvironmentProfilesSchema
+  profiles: EnvironmentProfilesSchema.optional()
     .describe('Environment-specific profiles (future: portability)'),
 
   onFailure: StepOnFailureSchema
