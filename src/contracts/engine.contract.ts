@@ -3,75 +3,23 @@
  * 
  * Defines the contract for workflow execution engines across the ecosystem.
  * Enables different products to implement their own execution strategies.
+ * 
+ * Architecture:
+ * - Workflow definition types are in types/workflow.interfaces.ts
+ * - This file contains engine-specific execution contracts:
+ *   - Execution options and results
+ *   - Status enums
+ *   - Engine interface
+ *   - Validation contracts
+ * 
+ * Usage:
+ * - Import workflow types from: @dev-ecosystem/core/types/workflow.interfaces
+ * - Import engine contracts from: @dev-ecosystem/core/contracts/engine.contract
+ * 
+ * @module contracts
  */
 
-/**
- * Workflow definition (generic)
- */
-export interface WorkflowDefinition {
-  version: string;
-  kind?: string;
-  metadata?: WorkflowMetadata;
-  workflow: {
-    steps: StepDefinition[];
-  };
-  triggers?: TriggerDefinition[];
-  inputs?: Record<string, InputDefinition>;
-  secrets?: SecretDefinition[];
-  outputs?: Record<string, string>;
-  [key: string]: unknown;
-}
-
-export interface WorkflowMetadata {
-  name: string;
-  displayName?: string;
-  description?: string;
-  version?: string;
-  author?: string;
-  tags?: string[];
-}
-
-export interface StepDefinition {
-  id: string;
-  name?: string;
-  uses: string;
-  with?: Record<string, unknown>;
-  when?: string;
-  needs?: string[];
-  timeout?: string;
-  retry?: RetryConfig;
-  continueOnError?: boolean;
-  [key: string]: unknown;
-}
-
-export interface TriggerDefinition {
-  type: 'manual' | 'cron' | 'event' | 'webhook';
-  enabled?: boolean;
-  [key: string]: unknown;
-}
-
-export interface InputDefinition {
-  type: string;
-  description?: string;
-  default?: unknown;
-  required?: boolean;
-  [key: string]: unknown;
-}
-
-export interface SecretDefinition {
-  name: string;
-  required?: boolean;
-  description?: string;
-}
-
-export interface RetryConfig {
-  maxAttempts?: number;
-  backoff?: 'fixed' | 'linear' | 'exponential';
-  initialDelay?: string;
-  maxDelay?: string;
-  factor?: number;
-  retryableErrors?: string[];
-}
+import type { WorkflowDefinition } from '../types/workflow.interfaces.js';
 
 /**
  * Workflow execution options

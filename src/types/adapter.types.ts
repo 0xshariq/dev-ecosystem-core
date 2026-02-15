@@ -19,13 +19,13 @@
 export interface ExecutionMetrics {
   /** Duration in milliseconds */
   durationMs: number;
-  
+
   /** Memory used in bytes (if available) */
   memoryUsed?: number;
-  
+
   /** Number of retries attempted */
   retries?: number;
-  
+
   /** Additional adapter-specific metrics */
   [key: string]: any;
 }
@@ -36,13 +36,13 @@ export interface ExecutionMetrics {
 export interface AdapterError {
   /** Error message */
   message: string;
-  
+
   /** Error code (if available) */
   code?: string | number;
-  
+
   /** Stack trace (if available) */
   stack?: string;
-  
+
   /** Additional error context */
   details?: Record<string, any>;
 }
@@ -56,25 +56,25 @@ export interface AdapterError {
 export interface AdapterResult<T = any> {
   /** Whether execution was successful */
   success: boolean;
-  
+
   /** Adapter-specific output data (undefined on failure) */
   output?: T;
-  
+
   /** Error information (only present on failure) */
   error?: AdapterError;
-  
+
   /** Execution logs (stdout, stderr, or custom messages) */
   logs?: string[];
-  
+
   /** Execution metrics */
   metrics: ExecutionMetrics;
-  
+
   /** Effects caused by this execution (for observability) */
   effects?: string[];
-  
+
   /** Events emitted during execution (for event bus) */
   emits?: string[];
-  
+
   /** Warnings encountered (non-fatal) */
   warnings?: string[];
 }
@@ -85,16 +85,16 @@ export interface AdapterResult<T = any> {
 export interface AdapterCapabilities {
   /** Actions this adapter can perform */
   actions: string[];
-  
+
   /** Whether adapter supports concurrent execution */
   concurrent?: boolean;
-  
+
   /** Whether adapter results are cacheable */
   cacheable?: boolean;
-  
+
   /** Whether adapter operations are idempotent */
   idempotent?: boolean;
-  
+
   /** Resource requirements */
   resources?: {
     /** Requires network access */
@@ -106,7 +106,7 @@ export interface AdapterCapabilities {
     /** Custom resource requirements */
     custom?: string[];
   };
-  
+
   /** Cost classification */
   cost?: 'free' | 'low' | 'medium' | 'high';
 }
@@ -117,22 +117,22 @@ export interface AdapterCapabilities {
 export interface AdapterMetadata {
   /** Adapter name */
   name: string;
-  
+
   /** Adapter version (semver) */
   version: string;
-  
+
   /** Human-readable description */
   description?: string;
-  
+
   /** Adapter author/maintainer */
   author?: string;
-  
+
   /** Adapter homepage or documentation URL */
   homepage?: string;
-  
+
   /** Adapter license */
   license?: string;
-  
+
   /** Tags for categorization */
   tags?: string[];
 }
@@ -143,40 +143,40 @@ export interface AdapterMetadata {
 export interface AdapterContext {
   /** Current workflow name */
   workflowName: string;
-  
+
   /** Current step ID */
   stepId: string;
-  
+
   /** Execution ID (unique per run) */
   executionId: string;
-  
+
   /** Logger function */
   log: (message: string, level?: 'info' | 'warn' | 'error' | 'debug') => void;
-  
+
   /** Access to secrets (if configured) */
   secrets?: Record<string, string>;
-  
+
   /** Temporary directory for step execution */
   tempDir?: string;
-  
+
   /** Abort signal for cancellation */
   signal?: AbortSignal;
-  
+
   /** Step timeout in milliseconds */
   timeout?: number;
-  
+
   /** Working directory */
   cwd?: string;
-  
+
   /** Environment variables */
   env?: Record<string, string>;
-  
+
   /** Access to previous step outputs */
   stepOutputs?: Record<string, any>;
-  
+
   /** Workflow inputs */
   inputs?: Record<string, any>;
-  
+
   /** Workflow context */
   workflowContext?: Record<string, any>;
 }
@@ -187,19 +187,19 @@ export interface AdapterContext {
 export interface Adapter {
   /** Unique adapter name */
   readonly name: string;
-  
+
   /** Adapter version */
   readonly version: string;
-  
+
   /** Adapter description */
   readonly description?: string;
-  
+
   /** Supported action patterns (e.g., 'http.*', 'shell.exec') */
   readonly supportedActions: string[];
-  
+
   /** Adapter capabilities (future-proof) */
   readonly capabilities?: AdapterCapabilities;
-  
+
   /** Adapter metadata (optional, for introspection) */
   readonly metadata?: AdapterMetadata;
 
@@ -287,7 +287,7 @@ export abstract class BaseAdapter implements Adapter {
     const regexPattern = pattern
       .replace(/\./g, '\\.')
       .replace(/\*/g, '.*');
-    
+
     const regex = new RegExp(`^${regexPattern}$`);
     return regex.test(action);
   }

@@ -1,6 +1,6 @@
 {
   "product": "mediaproc",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "displayName": "MediaProc",
   "description": "Advanced media processing CLI for images, videos, and audio",
   "capabilities": [

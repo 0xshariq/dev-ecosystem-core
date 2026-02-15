@@ -67,3 +67,34 @@ export * from './types/adapter.types.js';
 // ============================================================================
 
 export * from './schemas/index.js';
+
+// ============================================================================
+// LOGGING UTILITIES
+// ============================================================================
+
+export * from './logging/LogFormat.js';
+
+// ============================================================================
+// CONTRACTS - Interface Definitions
+// ============================================================================
+
+export * from './contracts/adapter.contract.js';
+export * from './contracts/cli.contract.js';
+export * from './contracts/engine.contract.js';
+export * from './contracts/plugin.contract.js';
+export * from './contracts/vault.contract.js';
+export * from './contracts/workflow.contract.js';
+
+// ============================================================================
+// UTILITIES
+// ============================================================================
+
+export * from './utils/assert.js';
+
+// ============================================================================
+// BILLING (Framework - Implementation in Products)
+// ============================================================================
+
+// Note: Billing framework is exported from billing/index.ts when needed
+// Currently empty as billing logic is product-specific
+// export * from './billing/index.js';

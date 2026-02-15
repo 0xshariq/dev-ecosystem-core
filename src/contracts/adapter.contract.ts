@@ -3,113 +3,65 @@
  * 
  * Defines the contract for universal adapters in the Orbyt workflow engine.
  * Adapters execute actions (shell commands, HTTP requests, AWS operations, etc.)
+ * 
+ * Architecture:
+ * - Core adapter types (Adapter, AdapterContext, AdapterResult, etc.) are in types/adapter.types.ts
+ * - This file contains contract-specific interfaces for:
+ *   - Adapter registry (IAdapterRegistry)
+ *   - Extended adapter interface (IAdapter)
+ *   - Documentation metadata (AdapterActionMetadata, AdapterExample)
+ *   - Runtime requirements (AdapterRequirements)
+ * 
+ * Usage:
+ * - Import core types from: @dev-ecosystem/core/types/adapter.types
+ * - Import contracts from: @dev-ecosystem/core/contracts/adapter.contract
+ * 
+ * @module contracts
  */
 
 import { z } from 'zod';
+import type {
+  Adapter,
+  AdapterMetadata,
+  AdapterCapabilities
+} from '../types/adapter.types.js';
 
 /**
- * Adapter execution context
+ * Universal adapter interface (extends base Adapter)
+ * 
+ * This extends the base Adapter with additional contract requirements:
+ * - Configuration schema validation
+ * - Initialization lifecycle
+ * - Health checks
+ * - Cleanup hooks
+ * 
+ * Note: validate() method is inherited from base Adapter interface
  */
-export interface AdapterContext {
-  workflowId: string;
-  workflowName: string;
-  runId: string;
-  stepId: string;
-  stepName?: string;
-  inputs: Record<string, unknown>;
-  secrets: Record<string, string>;
-  env: Record<string, string>;
-  workingDirectory: string;
-  timeoutMs?: number;
-}
-
-/**
- * Adapter execution result
- */
-export interface AdapterResult {
-  success: boolean;
-  outputs?: Record<string, unknown>;
-  error?: Error;
-  errorMessage?: string;
-  metadata?: Record<string, unknown>;
-  duration?: number;
-  exitCode?: number;
-  stdout?: string;
-  stderr?: string;
-}
-
-/**
- * Universal adapter interface
- */
-export interface IAdapter {
+export interface IAdapter extends Adapter {
   /**
-   * Adapter namespace (e.g., 'shell', 'http', 'aws')
-   */
-  readonly namespace: string;
-  
-  /**
-   * Adapter actions (e.g., 'command', 'request', 's3.upload')
-   */
-  readonly actions: string[];
-  
-  /**
-   * Adapter version
-   */
-  readonly version: string;
-  
-  /**
-   * Adapter configuration schema
+   * Adapter configuration schema (Zod)
    */
   readonly configSchema?: z.ZodSchema;
   
   /**
-   * Initialize the adapter
+   * Initialize the adapter with configuration
+   * (Extends base initialize to accept config parameter)
    */
   initialize?(config?: Record<string, unknown>): Promise<void>;
   
   /**
-   * Execute an adapter action
-   */
-  execute(action: string, context: AdapterContext): Promise<AdapterResult>;
-  
-  /**
-   * Validate action parameters before execution
-   */
-  validate?(action: string, params: Record<string, unknown>): Promise<boolean>;
-  
-  /**
-   * Cleanup resources
-   */
-  cleanup?(): Promise<void>;
-  
-  /**
    * Get adapter capabilities
    */
-  getCapabilities?(): string[];
+  getCapabilities?(): AdapterCapabilities;
   
   /**
-   * Health check
+   * Health check for adapter availability
    */
   healthCheck?(): Promise<boolean>;
 }
 
 /**
- * Adapter metadata
- */
-export interface AdapterMetadata {
-  namespace: string;
-  displayName: string;
-  description: string;
-  version: string;
-  author: string;
-  tags: string[];
-  category: string;
-  actions: AdapterActionMetadata[];
-  requirements?: AdapterRequirements;
-}
-
-/**
- * Adapter action metadata
+ * Adapter action metadata for documentation and tooling
  */
 export interface AdapterActionMetadata {
   name: string;
@@ -121,7 +73,7 @@ export interface AdapterActionMetadata {
 }
 
 /**
- * Adapter usage example
+ * Adapter usage example for documentation
  */
 export interface AdapterExample {
   title: string;
@@ -130,7 +82,7 @@ export interface AdapterExample {
 }
 
 /**
- * Adapter requirements
+ * Adapter requirements for runtime validation
  */
 export interface AdapterRequirements {
   platform?: string[];
@@ -144,13 +96,38 @@ export interface AdapterRequirements {
 }
 
 /**
- * Adapter registry interface
+ * Adapter registry interface for managing adapters
+ * 
+ * Provides centralized adapter registration and discovery
  */
 export interface IAdapterRegistry {
+  /**
+   * Register an adapter
+   */
   register(adapter: IAdapter): void;
-  unregister(namespace: string): void;
-  get(namespace: string): IAdapter | undefined;
-  has(namespace: string): boolean;
+  
+  /**
+   * Unregister an adapter by name
+   */
+  unregister(name: string): void;
+  
+  /**
+   * Get an adapter by name
+   */
+  get(name: string): IAdapter | undefined;
+  
+  /**
+   * Check if adapter exists
+   */
+  has(name: string): boolean;
+  
+  /**
+   * List all registered adapter names
+   */
   list(): string[];
-  getMetadata(namespace: string): AdapterMetadata | undefined;
+  
+  /**
+   * Get adapter metadata
+   */
+  getMetadata(name: string): AdapterMetadata | undefined;
 }

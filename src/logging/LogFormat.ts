@@ -34,7 +34,7 @@ export const LogColors = {
   reset: '\x1b[0m',
   bright: '\x1b[1m',
   dim: '\x1b[2m',
-  
+
   // Foreground colors
   black: '\x1b[30m',
   red: '\x1b[31m',
@@ -44,7 +44,7 @@ export const LogColors = {
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
   white: '\x1b[37m',
-  
+
   // Background colors
   bgBlack: '\x1b[40m',
   bgRed: '\x1b[41m',
@@ -98,29 +98,29 @@ export interface LogFormatOptions {
  */
 export function formatJSON(entry: LogEntry, options: LogFormatOptions = {}): string {
   const { indent = 0 } = options;
-  
+
   const output: Record<string, unknown> = {
     timestamp: entry.timestamp,
     level: entry.level,
     message: entry.message,
   };
-  
+
   if (entry.source) {
     output.source = entry.source;
   }
-  
+
   if (entry.context && Object.keys(entry.context).length > 0) {
     output.context = entry.context;
   }
-  
+
   if (entry.metadata && Object.keys(entry.metadata).length > 0) {
     output.metadata = entry.metadata;
   }
-  
+
   if (entry.tags && entry.tags.length > 0) {
     output.tags = entry.tags;
   }
-  
+
   if (entry.error) {
     output.error = {
       name: entry.error.name,
@@ -128,7 +128,7 @@ export function formatJSON(entry: LogEntry, options: LogFormatOptions = {}): str
       stack: entry.error.stack,
     };
   }
-  
+
   return JSON.stringify(output, null, indent || undefined);
 }
 
@@ -137,14 +137,14 @@ export function formatJSON(entry: LogEntry, options: LogFormatOptions = {}): str
  */
 export function formatText(entry: LogEntry, options: LogFormatOptions = {}): string {
   const { colors = false, timestamp = true, includeSource = true } = options;
-  
+
   const parts: string[] = [];
-  
+
   // Timestamp
   if (timestamp) {
     parts.push(`[${entry.timestamp}]`);
   }
-  
+
   // Level
   const levelStr = entry.level.toUpperCase().padEnd(5);
   if (colors) {
@@ -153,32 +153,32 @@ export function formatText(entry: LogEntry, options: LogFormatOptions = {}): str
   } else {
     parts.push(levelStr);
   }
-  
+
   // Source
   if (includeSource && entry.source) {
     parts.push(`[${entry.source}]`);
   }
-  
+
   // Message
   parts.push(entry.message);
-  
+
   let output = parts.join(' ');
-  
+
   // Context
   if (entry.context && Object.keys(entry.context).length > 0) {
     output += `\n  Context: ${JSON.stringify(entry.context)}`;
   }
-  
+
   // Metadata
   if (entry.metadata && Object.keys(entry.metadata).length > 0) {
     output += `\n  Metadata: ${JSON.stringify(entry.metadata)}`;
   }
-  
+
   // Tags
   if (entry.tags && entry.tags.length > 0) {
     output += `\n  Tags: ${entry.tags.join(', ')}`;
   }
-  
+
   // Error
   if (entry.error) {
     output += `\n  Error: ${entry.error.name}: ${entry.error.message}`;
@@ -186,7 +186,7 @@ export function formatText(entry: LogEntry, options: LogFormatOptions = {}): str
       output += `\n${entry.error.stack}`;
     }
   }
-  
+
   return output;
 }
 
@@ -195,16 +195,16 @@ export function formatText(entry: LogEntry, options: LogFormatOptions = {}): str
  */
 export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): string {
   const { colors = true } = options;
-  
+
   const parts: string[] = [];
-  
+
   // Timestamp with dim color
   if (colors) {
     parts.push(`${LogColors.dim}${entry.timestamp}${LogColors.reset}`);
   } else {
     parts.push(entry.timestamp);
   }
-  
+
   // Level with color and icon
   const levelIcons: Record<LogLevel, string> = {
     [LogLevel.DEBUG]: '🐛',
@@ -213,17 +213,17 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
     [LogLevel.ERROR]: '❌',
     [LogLevel.FATAL]: '💀',
   };
-  
+
   const icon = levelIcons[entry.level];
   const levelStr = entry.level.toUpperCase();
-  
+
   if (colors) {
     const color = LogLevelColors[entry.level];
     parts.push(`${icon} ${color}${levelStr}${LogColors.reset}`);
   } else {
     parts.push(`${icon} ${levelStr}`);
   }
-  
+
   // Source with brackets
   if (entry.source) {
     if (colors) {
@@ -232,44 +232,44 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
       parts.push(`[${entry.source}]`);
     }
   }
-  
+
   // Message with bright color
   if (colors) {
     parts.push(`${LogColors.bright}${entry.message}${LogColors.reset}`);
   } else {
     parts.push(entry.message);
   }
-  
+
   let output = parts.join(' ');
-  
+
   // Context with indentation
   if (entry.context && Object.keys(entry.context).length > 0) {
     const contextStr = JSON.stringify(entry.context, null, 2)
       .split('\n')
       .map(line => `  ${line}`)
       .join('\n');
-    
+
     if (colors) {
       output += `\n${LogColors.dim}Context:${LogColors.reset}\n${contextStr}`;
     } else {
       output += `\nContext:\n${contextStr}`;
     }
   }
-  
+
   // Metadata
   if (entry.metadata && Object.keys(entry.metadata).length > 0) {
     const metadataStr = JSON.stringify(entry.metadata, null, 2)
       .split('\n')
       .map(line => `  ${line}`)
       .join('\n');
-    
+
     if (colors) {
       output += `\n${LogColors.dim}Metadata:${LogColors.reset}\n${metadataStr}`;
     } else {
       output += `\nMetadata:\n${metadataStr}`;
     }
   }
-  
+
   // Tags with color
   if (entry.tags && entry.tags.length > 0) {
     const tagsStr = entry.tags.map(tag => `#${tag}`).join(' ');
@@ -279,7 +279,7 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
       output += `\nTags: ${tagsStr}`;
     }
   }
-  
+
   // Error with red color
   if (entry.error) {
     if (colors) {
@@ -287,13 +287,13 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
     } else {
       output += `\nError: ${entry.error.name}: ${entry.error.message}`;
     }
-    
+
     if (entry.error.stack) {
       const stackLines = entry.error.stack.split('\n').slice(1); // Skip first line (already shown)
       const formattedStack = stackLines
         .map(line => `  ${line.trim()}`)
         .join('\n');
-      
+
       if (colors) {
         output += `\n${LogColors.dim}${formattedStack}${LogColors.reset}`;
       } else {
@@ -301,7 +301,7 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
       }
     }
   }
-  
+
   return output;
 }
 
@@ -310,45 +310,45 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
  */
 export function formatStructured(entry: LogEntry, options: LogFormatOptions = {}): string {
   const { colors = false } = options;
-  
+
   const kvPairs: string[] = [];
-  
+
   // Core fields
   kvPairs.push(`timestamp="${entry.timestamp}"`);
   kvPairs.push(`level="${entry.level}"`);
   kvPairs.push(`message="${entry.message}"`);
-  
+
   if (entry.source) {
     kvPairs.push(`source="${entry.source}"`);
   }
-  
+
   // Context fields
   if (entry.context) {
     for (const [key, value] of Object.entries(entry.context)) {
       kvPairs.push(`context.${key}="${JSON.stringify(value)}"`);
     }
   }
-  
+
   // Metadata fields
   if (entry.metadata) {
     for (const [key, value] of Object.entries(entry.metadata)) {
       kvPairs.push(`metadata.${key}="${JSON.stringify(value)}"`);
     }
   }
-  
+
   // Tags
   if (entry.tags && entry.tags.length > 0) {
     kvPairs.push(`tags="${entry.tags.join(',')}"`);
   }
-  
+
   // Error
   if (entry.error) {
     kvPairs.push(`error.name="${entry.error.name}"`);
     kvPairs.push(`error.message="${entry.error.message}"`);
   }
-  
+
   let output = kvPairs.join(' ');
-  
+
   // Apply colors to level
   if (colors) {
     const levelPattern = /level="(\w+)"/;
@@ -357,7 +357,7 @@ export function formatStructured(entry: LogEntry, options: LogFormatOptions = {}
       return `${color}level="${level}"${LogColors.reset}`;
     });
   }
-  
+
   return output;
 }
 
@@ -366,7 +366,7 @@ export function formatStructured(entry: LogEntry, options: LogFormatOptions = {}
  */
 export function formatLog(entry: LogEntry, options: LogFormatOptions = {}): string {
   const { format = 'pretty' } = options;
-  
+
   switch (format) {
     case 'json':
       return formatJSON(entry, options);
@@ -431,13 +431,13 @@ export function redactSensitive(obj: Record<string, unknown>): Record<string, un
     'creditCard',
     'ssn',
   ];
-  
+
   const result: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(obj)) {
     const lowerKey = key.toLowerCase();
     const isSensitive = sensitiveKeys.some(sk => lowerKey.includes(sk.toLowerCase()));
-    
+
     if (isSensitive) {
       result[key] = '[REDACTED]';
     } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
@@ -446,6 +446,278 @@ export function redactSensitive(obj: Record<string, unknown>): Record<string, un
       result[key] = value;
     }
   }
-  
+
   return result;
+}
+
+/**
+ * Status symbols for workflow execution
+ */
+export const StatusSymbols = {
+  // Execution states
+  pending: '○',
+  running: '●',
+  success: '✔',
+  failure: '✖',
+  skipped: '⊘',
+  warning: '⚠',
+
+  // Workflow elements
+  workflow: '▶',
+  step: '►',
+  substep: '▸',
+
+  // Progress
+  spinner: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
+
+  // Decorative
+  arrow: '→',
+  bullet: '•',
+  check: '✓',
+  cross: '✗',
+  info: 'ℹ',
+
+  // Box drawing
+  box: {
+    topLeft: '┌',
+    topRight: '┐',
+    bottomLeft: '└',
+    bottomRight: '┘',
+    horizontal: '─',
+    vertical: '│',
+    verticalRight: '├',
+    verticalLeft: '┤',
+    horizontalDown: '┬',
+    horizontalUp: '┴',
+    cross: '┼',
+  },
+} as const;
+
+/**
+ * Format duration in human-readable format
+ */
+export function formatDuration(ms: number): string {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  } else if (ms < 60000) {
+    return `${(ms / 1000).toFixed(2)}s`;
+  } else if (ms < 3600000) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}m ${seconds}s`;
+  } else {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+  }
+}
+
+/**
+ * Format bytes in human-readable format
+ */
+export function formatBytes(bytes: number): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
+}
+
+/**
+ * Align text with padding
+ */
+export function alignText(text: string, width: number, align: 'left' | 'right' | 'center' = 'left'): string {
+  if (text.length >= width) {
+    return text;
+  }
+
+  const padding = width - text.length;
+
+  switch (align) {
+    case 'left':
+      return text + ' '.repeat(padding);
+    case 'right':
+      return ' '.repeat(padding) + text;
+    case 'center':
+      const leftPad = Math.floor(padding / 2);
+      const rightPad = padding - leftPad;
+      return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
+    default:
+      return text;
+  }
+}
+
+/**
+ * Create a horizontal divider
+ */
+export function divider(width: number = 60, char: string = '─'): string {
+  return char.repeat(width);
+}
+
+/**
+ * Create a box around text
+ */
+export function box(text: string, options: { width?: number; padding?: number } = {}): string {
+  const { width = 60, padding = 1 } = options;
+  const lines = text.split('\n');
+  const contentWidth = width - 4; // Account for borders and padding
+
+  const { box: boxChars } = StatusSymbols;
+  const paddingStr = ' '.repeat(padding);
+
+  const result: string[] = [];
+
+  // Top border
+  result.push(boxChars.topLeft + boxChars.horizontal.repeat(width - 2) + boxChars.topRight);
+
+  // Content lines
+  for (const line of lines) {
+    const paddedLine = alignText(line, contentWidth, 'left');
+    result.push(boxChars.vertical + paddingStr + paddedLine + paddingStr + boxChars.vertical);
+  }
+
+  // Bottom border
+  result.push(boxChars.bottomLeft + boxChars.horizontal.repeat(width - 2) + boxChars.bottomRight);
+
+  return result.join('\n');
+}
+
+/**
+ * Apply color to text if colors are enabled
+ */
+export function colorize(text: string, color: string, enabled: boolean = true): string {
+  if (!enabled) {
+    return text;
+  }
+  return `${color}${text}${LogColors.reset}`;
+}
+
+/**
+ * Create a status indicator with color
+ */
+export function statusIndicator(
+  status: 'pending' | 'running' | 'success' | 'failure' | 'skipped' | 'warning',
+  colors: boolean = true
+): string {
+  const symbol = StatusSymbols[status];
+
+  if (!colors) {
+    return symbol;
+  }
+
+  const colorMap = {
+    pending: LogColors.dim,
+    running: LogColors.blue,
+    success: LogColors.green,
+    failure: LogColors.red,
+    skipped: LogColors.yellow,
+    warning: LogColors.yellow,
+  };
+
+  return colorize(symbol, colorMap[status], colors);
+}
+
+/**
+ * Format a step execution line
+ */
+export function formatStepLine(
+  stepId: string,
+  status: 'pending' | 'running' | 'success' | 'failure' | 'skipped',
+  adapter?: string,
+  duration?: number,
+  colors: boolean = true
+): string {
+  const indicator = statusIndicator(status, colors);
+  const stepName = colors ? colorize(stepId, LogColors.bright, colors) : stepId;
+
+  let line = `${indicator} ${stepName}`;
+
+  if (adapter) {
+    const adapterText = colors ? colorize(adapter, LogColors.dim, colors) : adapter;
+    line += ` ${StatusSymbols.arrow} ${adapterText}`;
+  }
+
+  if (duration !== undefined) {
+    const durationText = formatDuration(duration);
+    const durationColored = colors ? colorize(durationText, LogColors.dim, colors) : durationText;
+    line += ` (${durationColored})`;
+  }
+
+  return line;
+}
+
+/**
+ * Create a section header
+ */
+export function sectionHeader(title: string, colors: boolean = true): string {
+  const decorated = `${StatusSymbols.workflow} ${title}`;
+  return colors ? colorize(decorated, LogColors.bright + LogColors.cyan, colors) : decorated;
+}
+
+/**
+ * Format key-value pairs
+ */
+export function formatKeyValue(
+  key: string,
+  value: string | number | boolean,
+  colors: boolean = true
+): string {
+  const keyText = colors ? colorize(key, LogColors.dim, colors) : key;
+  const valueText = colors ? colorize(String(value), LogColors.bright, colors) : String(value);
+  return `${keyText}: ${valueText}`;
+}
+
+/**
+ * Create a summary table
+ */
+export interface SummaryRow {
+  label: string;
+  value: string | number;
+  color?: string;
+}
+
+export function formatSummary(rows: SummaryRow[], colors: boolean = true): string {
+  const maxLabelWidth = Math.max(...rows.map(r => r.label.length));
+
+  return rows.map(row => {
+    const label = alignText(row.label, maxLabelWidth, 'left');
+    const labelText = colors ? colorize(label, LogColors.dim, colors) : label;
+
+    let valueText = String(row.value);
+    if (colors && row.color) {
+      valueText = colorize(valueText, row.color, colors);
+    } else if (colors) {
+      valueText = colorize(valueText, LogColors.bright, colors);
+    }
+
+    return `  ${labelText}  ${valueText}`;
+  }).join('\n');
+}
+
+/**
+ * Format a percentage with color coding
+ */
+export function formatPercentage(value: number, total: number, colors: boolean = true): string {
+  const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+  const text = `${percentage}%`;
+
+  if (!colors) {
+    return text;
+  }
+
+  const percent = parseFloat(percentage);
+  let color = LogColors.green;
+
+  if (percent < 50) {
+    color = LogColors.red;
+  } else if (percent < 80) {
+    color = LogColors.yellow;
+  }
+
+  return colorize(text, color, colors);
 }

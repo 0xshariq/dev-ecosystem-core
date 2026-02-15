@@ -3,9 +3,31 @@
  * 
  * Defines the contract for workflow execution and management.
  * Unifies workflow concepts across Orbyt, DevForge, and other products.
+ * 
+ * Architecture:
+ * - Workflow definition types are in types/workflow.interfaces.ts
+ * - Execution contracts are in engine.contract.ts
+ * - This file contains workflow management contracts:
+ *   - Storage interface (IWorkflowStorage)
+ *   - History interface (IWorkflowHistory)
+ *   - Scheduler interface (IWorkflowScheduler)
+ *   - Template interface (IWorkflowTemplate)
+ *   - Validator interface (IWorkflowValidator)
+ * 
+ * Usage:
+ * - Import workflow types from: @dev-ecosystem/core/types/workflow.interfaces
+ * - Import execution types from: @dev-ecosystem/core/contracts/engine.contract
+ * - Import management contracts from: @dev-ecosystem/core/contracts/workflow.contract
+ * 
+ * @module contracts
  */
 
-import type { WorkflowDefinition, WorkflowExecutionOptions, WorkflowExecutionResult } from './engine.contract';
+import type { WorkflowDefinition } from '../types/workflow.interfaces.js';
+import type {
+  WorkflowExecutionOptions,
+  WorkflowExecutionResult,
+  ValidationResult
+} from './engine.contract.js';
 
 /**
  * Workflow storage interface
@@ -15,27 +37,27 @@ export interface IWorkflowStorage {
    * Save a workflow definition
    */
   save(workflow: WorkflowDefinition): Promise<string>;
-  
+
   /**
    * Load a workflow by ID or name
    */
   load(identifier: string): Promise<WorkflowDefinition | null>;
-  
+
   /**
    * Delete a workflow
    */
   delete(identifier: string): Promise<void>;
-  
+
   /**
    * List all workflows
    */
   list(filter?: WorkflowFilter): Promise<WorkflowSummary[]>;
-  
+
   /**
    * Check if workflow exists
    */
   exists(identifier: string): Promise<boolean>;
-  
+
   /**
    * Update workflow metadata
    */
@@ -81,22 +103,22 @@ export interface IWorkflowHistory {
    * Save execution result
    */
   save(result: WorkflowExecutionResult): Promise<void>;
-  
+
   /**
    * Get execution by run ID
    */
   get(runId: string): Promise<WorkflowExecutionResult | null>;
-  
+
   /**
    * List executions
    */
   list(filter?: WorkflowHistoryFilter): Promise<WorkflowExecutionResult[]>;
-  
+
   /**
    * Delete execution history
    */
   delete(runId: string): Promise<void>;
-  
+
   /**
    * Get execution statistics
    */
@@ -136,22 +158,22 @@ export interface IWorkflowScheduler {
    * Schedule a workflow
    */
   schedule(workflowId: string, trigger: ScheduleTrigger, options?: WorkflowExecutionOptions): Promise<string>;
-  
+
   /**
    * Unschedule a workflow
    */
   unschedule(scheduleId: string): Promise<void>;
-  
+
   /**
    * List scheduled workflows
    */
   list(): Promise<ScheduledWorkflow[]>;
-  
+
   /**
    * Enable/disable a schedule
    */
   setEnabled(scheduleId: string, enabled: boolean): Promise<void>;
-  
+
   /**
    * Get next run time
    */
@@ -192,22 +214,22 @@ export interface IWorkflowTemplate {
    * Create workflow from template
    */
   create(templateId: string, variables: Record<string, unknown>): Promise<WorkflowDefinition>;
-  
+
   /**
    * List available templates
    */
   list(category?: string): Promise<WorkflowTemplateSummary[]>;
-  
+
   /**
    * Get template details
    */
   get(templateId: string): Promise<WorkflowTemplate>;
-  
+
   /**
    * Save custom template
    */
   save(template: WorkflowTemplate): Promise<string>;
-  
+
   /**
    * Delete template
    */
@@ -262,41 +284,26 @@ export interface IWorkflowValidator {
    * Validate workflow definition
    */
   validate(workflow: WorkflowDefinition): Promise<ValidationResult>;
-  
+
   /**
    * Validate workflow file
    */
   validateFile(filePath: string): Promise<ValidationResult>;
-  
+
   /**
    * Check for circular dependencies
    */
   checkCircularDependencies(workflow: WorkflowDefinition): boolean;
-  
+
   /**
    * Validate adapter references
    */
   validateAdapters(workflow: WorkflowDefinition): Promise<AdapterValidationResult>;
 }
 
-export interface ValidationResult {
-  valid: boolean;
-  errors: ValidationError[];
-  warnings: ValidationWarning[];
-}
-
-export interface ValidationError {
-  path: string;
-  message: string;
-  code: string;
-}
-
-export interface ValidationWarning {
-  path: string;
-  message: string;
-  code: string;
-}
-
+/**
+ * Adapter validation result (workflow-specific)
+ */
 export interface AdapterValidationResult {
   valid: boolean;
   missingAdapters: string[];
