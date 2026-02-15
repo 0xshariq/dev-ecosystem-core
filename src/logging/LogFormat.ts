@@ -140,9 +140,9 @@ export function formatText(entry: LogEntry, options: LogFormatOptions = {}): str
 
   const parts: string[] = [];
 
-  // Timestamp
+  // Timestamp (human-readable format)
   if (timestamp) {
-    parts.push(`[${entry.timestamp}]`);
+    parts.push(`[${formatTimestamp(entry.timestamp, 'time')}]`);
   }
 
   // Level
@@ -198,11 +198,12 @@ export function formatPretty(entry: LogEntry, options: LogFormatOptions = {}): s
 
   const parts: string[] = [];
 
-  // Timestamp with dim color
+  // Timestamp with dim color (human-readable format)
+  const readableTimestamp = formatTimestamp(entry.timestamp, 'time');
   if (colors) {
-    parts.push(`${LogColors.dim}${entry.timestamp}${LogColors.reset}`);
+    parts.push(`${LogColors.dim}${readableTimestamp}${LogColors.reset}`);
   } else {
-    parts.push(entry.timestamp);
+    parts.push(readableTimestamp);
   }
 
   // Level with color and icon
@@ -313,8 +314,8 @@ export function formatStructured(entry: LogEntry, options: LogFormatOptions = {}
 
   const kvPairs: string[] = [];
 
-  // Core fields
-  kvPairs.push(`timestamp="${entry.timestamp}"`);
+  // Core fields (use readable timestamp)
+  kvPairs.push(`timestamp="${formatTimestamp(entry.timestamp, 'full')}"`);
   kvPairs.push(`level="${entry.level}"`);
   kvPairs.push(`message="${entry.message}"`);
 
@@ -492,6 +493,52 @@ export const StatusSymbols = {
     cross: '┼',
   },
 } as const;
+
+/**
+ * Format timestamp in human-readable format
+ * 
+ * Converts Date or ISO string to readable time format.
+ * 
+ * @param timestamp - Date object or ISO string
+ * @param format - Format style: 'time' (13:08:21), 'datetime' (Feb 15, 13:08:21), 'full' (2026-02-15 13:08:21)
+ * @returns Formatted timestamp string
+ * 
+ * @example
+ * formatTimestamp(new Date()) // "13:08:21"
+ * formatTimestamp(new Date(), 'datetime') // "Feb 15, 13:08:21"
+ * formatTimestamp(new Date(), 'full') // "2026-02-15 13:08:21"
+ */
+export function formatTimestamp(
+  timestamp: Date | string,
+  format: 'time' | 'datetime' | 'full' = 'time'
+): string {
+  const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const timeStr = `${hours}:${minutes}:${seconds}`;
+
+  if (format === 'time') {
+    return timeStr;
+  }
+
+  if (format === 'datetime') {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    return `${month} ${day}, ${timeStr}`;
+  }
+
+  if (format === 'full') {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day} ${timeStr}`;
+  }
+
+  return timeStr;
+}
 
 /**
  * Format duration in human-readable format
