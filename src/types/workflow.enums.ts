@@ -39,6 +39,10 @@ export enum TriggerType {
   Event = 'event',
   /** HTTP webhook trigger */
   Webhook = 'webhook',
+  /** Interval trigger */
+  Interval = 'interval',
+  /** One-time execution */
+  Once = 'once',
 }
 
 /**
