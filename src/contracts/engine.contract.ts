@@ -210,17 +210,39 @@ export interface ExecutionFilter {
  * Engine event types
  */
 export enum EngineEventType {
+  // Workflow-level events
   WORKFLOW_STARTED = 'workflow.started',
   WORKFLOW_COMPLETED = 'workflow.completed',
   WORKFLOW_FAILED = 'workflow.failed',
   WORKFLOW_PAUSED = 'workflow.paused',
   WORKFLOW_RESUMED = 'workflow.resumed',
   WORKFLOW_CANCELLED = 'workflow.cancelled',
+
+  // Step-level events
   STEP_STARTED = 'step.started',
   STEP_COMPLETED = 'step.completed',
   STEP_FAILED = 'step.failed',
   STEP_SKIPPED = 'step.skipped',
   STEP_RETRYING = 'step.retrying',
+  STEP_TIMEOUT = 'step.timeout',
+
+  // Job queue events
+  JOB_ENQUEUED = 'job.enqueued',
+  JOB_DEQUEUED = 'job.dequeued',
+  JOB_RETRY = 'job.retry',
+
+  // Scheduling events
+  SCHEDULE_TRIGGERED = 'schedule.triggered',
+  TRIGGER_FIRED = 'trigger.fired',
+
+  // State transitions
+  STATE_CHANGED = 'state.changed',
+
+  // System events
+  ENGINE_STARTED = 'engine.started',
+  ENGINE_STOPPED = 'engine.stopped',
+  WORKER_ONLINE = 'worker.online',
+  WORKER_OFFLINE = 'worker.offline'
 }
 
 /**
