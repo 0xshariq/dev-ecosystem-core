@@ -127,6 +127,46 @@ export const MediaProcErrorCodes = {
   /** Codec parameters invalid */
   CODEC_PARAMS_INVALID: 'MEDIAPROC-CODEC-003',
 
+  // =========================================================================
+  // GENERAL (GEN) - Generic utility errors (CLI, plugins, internal)
+  // =========================================================================
+
+  /** Invalid user input or arguments */
+  GENERAL_INPUT_INVALID: 'MEDIAPROC-GEN-001',
+
+  /** Validation failed */
+  GENERAL_VALIDATION_FAILED: 'MEDIAPROC-GEN-002',
+
+  /** Configuration is invalid or missing */
+  GENERAL_CONFIG_INVALID: 'MEDIAPROC-GEN-003',
+
+  /** Feature or format not supported */
+  GENERAL_UNSUPPORTED: 'MEDIAPROC-GEN-004',
+
+  /** Feature not yet implemented */
+  GENERAL_NOT_IMPLEMENTED: 'MEDIAPROC-GEN-005',
+
+  /** File system operation failed */
+  GENERAL_FILESYSTEM_ERROR: 'MEDIAPROC-GEN-006',
+
+  /** External tool execution failed */
+  GENERAL_TOOL_ERROR: 'MEDIAPROC-GEN-007',
+
+  /** Required dependency is missing */
+  GENERAL_DEPENDENCY_MISSING: 'MEDIAPROC-GEN-008',
+
+  /** Plugin execution error */
+  GENERAL_PLUGIN_ERROR: 'MEDIAPROC-GEN-009',
+
+  /** Plugin not found */
+  GENERAL_PLUGIN_NOT_FOUND: 'MEDIAPROC-GEN-010',
+
+  /** Operation cancelled by user */
+  GENERAL_CANCELLED: 'MEDIAPROC-GEN-011',
+
+  /** Internal or unexpected error */
+  GENERAL_INTERNAL_ERROR: 'MEDIAPROC-GEN-012',
+
 } as const;
 
 /**
