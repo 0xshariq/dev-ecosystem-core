@@ -98,3 +98,11 @@ export * from './utils/assert.js';
 // Note: Billing framework is exported from billing/index.ts when needed
 // Currently empty as billing logic is product-specific
 // export * from './billing/index.js';
+
+// ============================================================================
+// USAGE TRACKING & COLLECTION
+// ============================================================================
+
+// Standardized usage event types and collector interface
+// Used across all ecosystem components for billing, analytics, quotas
+export * from './usage/index.js';
