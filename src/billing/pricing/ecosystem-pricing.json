@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "currency": "USD",
+  "defaults": {
+    "fallbackPricePerEvent": 0,
+    "fallbackMetric": "count"
+  },
+  "notes": "Use this file as the ecosystem-level pricing guide. Merge this with component-pricing.json for full catalog generation."
+}

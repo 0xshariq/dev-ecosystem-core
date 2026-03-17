@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "currency": "USD",
+  "components": {
+    "orbyt": {
+      "component": "orbyt",
+      "rules": [
+        {
+          "id": "orbyt-workflow-run",
+          "eventType": "usage.workflow.run",
+          "metric": "count",
+          "pricePerUnit": 0.01,
+          "description": "Charge per workflow run"
+        },
+        {
+          "id": "orbyt-step-execute",
+          "eventType": "usage.step.execute",
+          "metric": "count",
+          "pricePerUnit": 0.001,
+          "description": "Charge per step"
+        }
+      ]
+    },
+    "mediaproc": {
+      "component": "mediaproc",
+      "rules": [
+        {
+          "id": "mediaproc-adapter-call",
+          "eventType": "usage.adapter.call",
+          "metric": "count",
+          "pricePerUnit": 0.02,
+          "description": "Charge per adapter call"
+        },
+        {
+          "id": "mediaproc-duration",
+          "eventType": "usage.adapter.call",
+          "adapterType": "media",
+          "metric": "duration-ms",
+          "pricePerUnit": 0.00001,
+          "minimumUnits": 1,
+          "description": "Duration based media processing"
+        }
+      ]
+    },
+    "vaulta": {
+      "component": "vaulta",
+      "rules": [
+        {
+          "id": "vaulta-workflow-run",
+          "eventType": "usage.workflow.run",
+          "metric": "count",
+          "pricePerUnit": 0.015,
+          "description": "Charge per Vaulta workflow run"
+        }
+      ]
+    }
+  }
+}

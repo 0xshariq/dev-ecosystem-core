@@ -95,9 +95,9 @@ export * from './utils/assert.js';
 // BILLING (Framework - Implementation in Products)
 // ============================================================================
 
-// Note: Billing framework is exported from billing/index.ts when needed
-// Currently empty as billing logic is product-specific
-// export * from './billing/index.js';
+// Component-agnostic billing framework
+// Accepts standardized usage events and pricing catalogs
+export * from './billing/index.js';
 
 // ============================================================================
 // USAGE TRACKING & COLLECTION
