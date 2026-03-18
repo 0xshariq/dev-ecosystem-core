@@ -95,6 +95,12 @@ export interface AdapterCapabilities {
   /** Whether adapter operations are idempotent */
   idempotent?: boolean;
 
+  /**
+   * Relative side-effect risk of adapter actions.
+   * Used by resume/retry safety checks to gate unsafe operations.
+   */
+  sideEffectLevel?: 'low' | 'medium' | 'high';
+
   /** Resource requirements */
   resources?: {
     /** Requires network access */
