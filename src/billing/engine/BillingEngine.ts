@@ -1,5 +1,12 @@
 import type { UsageEvent } from '../../usage/UsageTypes.js';
 import type {
+	BillingUsageFetchProvider,
+	BillingUsageFetchOptions,
+	BillingUsageFetchResult,
+	BillingUsageIncrementalFetchOptions,
+	BillingUsageIncrementalFetchResult,
+} from '../types/BillingFetchTypes.js';
+import type {
 	BillingCalculationInput,
 	BillingCalculationResult,
 	BillingLineItem,
@@ -11,6 +18,7 @@ import type {
 
 export class BillingEngine {
 	private pricing: BillingPricingCatalog;
+	private usageFetchProvider?: BillingUsageFetchProvider;
 
 	constructor(pricing: BillingPricingCatalog) {
 		this.pricing = pricing;
@@ -18,6 +26,43 @@ export class BillingEngine {
 
 	setPricing(pricing: BillingPricingCatalog): void {
 		this.pricing = pricing;
+	}
+
+	/**
+	 * Foundation-only wiring: caller injects a usage fetch provider.
+	 *
+	 * TODO(v-next): add provider capability checks (period support, max limits,
+	 * cursor guarantees) before accepting the provider.
+	 */
+	setUsageFetchProvider(provider: BillingUsageFetchProvider): void {
+		this.usageFetchProvider = provider;
+	}
+
+	/**
+	 * Foundation-only delegation for period billing fetches.
+	 *
+	 * TODO(v-next): normalize/validate period bounds here so all providers follow
+	 * the same constraints from one place.
+	 */
+	async fetchUsageForBilling(options: BillingUsageFetchOptions = {}): Promise<BillingUsageFetchResult> {
+		if (!this.usageFetchProvider) {
+			throw new Error('Billing usage fetch provider is not configured');
+		}
+		return this.usageFetchProvider.fetchUsageForBilling(options);
+	}
+
+	/**
+	 * Foundation-only delegation for incremental billing fetches.
+	 *
+	 * TODO(v-next): centralize cursor versioning/migration here.
+	 */
+	async fetchUsageForBillingIncremental(
+		options: BillingUsageIncrementalFetchOptions = {},
+	): Promise<BillingUsageIncrementalFetchResult> {
+		if (!this.usageFetchProvider) {
+			throw new Error('Billing usage fetch provider is not configured');
+		}
+		return this.usageFetchProvider.fetchUsageForBillingIncremental(options);
 	}
 
 	calculate(input: BillingCalculationInput): BillingCalculationResult {
