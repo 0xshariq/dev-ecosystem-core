@@ -1,4 +1,4 @@
-import type { UsageEvent } from '../../usage/UsageTypes.js';
+import type { UsageCollector, UsageEvent } from '../../usage/UsageTypes.js';
 import type {
 	BillingUsageFetchProvider,
 	BillingUsageFetchOptions,
@@ -7,6 +7,7 @@ import type {
 	BillingUsageIncrementalFetchResult,
 } from '../types/BillingFetchTypes.js';
 import type {
+	BillingCalculationCollectorInput,
 	BillingCalculationInput,
 	BillingCalculationResult,
 	BillingLineItem,
@@ -19,6 +20,7 @@ import type {
 export class BillingEngine {
 	private pricing: BillingPricingCatalog;
 	private usageFetchProvider?: BillingUsageFetchProvider;
+	private usageCollector?: UsageCollector;
 
 	constructor(pricing: BillingPricingCatalog) {
 		this.pricing = pricing;
@@ -26,6 +28,20 @@ export class BillingEngine {
 
 	setPricing(pricing: BillingPricingCatalog): void {
 		this.pricing = pricing;
+	}
+
+	/**
+	 * Collector-first usage ingestion wiring.
+	 *
+	 * TODO(v-next): make this mandatory for all online billing modes and retire
+	 * array-based usage inputs.
+	 */
+	setUsageCollector(collector: UsageCollector): void {
+		this.usageCollector = collector;
+	}
+
+	getUsageCollector(): UsageCollector | undefined {
+		return this.usageCollector;
 	}
 
 	/**
@@ -68,6 +84,32 @@ export class BillingEngine {
 	calculate(input: BillingCalculationInput): BillingCalculationResult {
 		this.pricing = input.pricing;
 		return this.calculateFromUsage(input.usageEvents);
+	}
+
+	/**
+	 * Collector-first billing calculation foundation.
+	 *
+	 * This method only accepts UsageCollector (ecosystem-core contract).
+	 * It reads events when the collector provides a snapshot accessor.
+	 *
+	 * TODO(v-next): introduce a formal snapshot/query contract on UsageCollector
+	 * so BillingEngine does not rely on structural access checks.
+	 */
+	calculateFromCollector(input: BillingCalculationCollectorInput): BillingCalculationResult {
+		this.pricing = input.pricing;
+		this.usageCollector = input.usageCollector;
+
+		const reader = input.usageCollector as UsageCollector & {
+			getUsageEvents?: () => UsageEvent[];
+		};
+
+		if (typeof reader.getUsageEvents !== 'function') {
+			throw new Error(
+				'UsageCollector does not expose getUsageEvents(); snapshot/query support is required for billing calculation',
+			);
+		}
+
+		return this.calculateFromUsage(reader.getUsageEvents());
 	}
 
 	calculateFromUsage(usageEvents: UsageEvent[]): BillingCalculationResult {

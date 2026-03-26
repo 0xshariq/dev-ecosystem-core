@@ -1,4 +1,5 @@
 import type { UsageEvent, UsageEventType } from '../../usage/UsageTypes.js';
+import type { UsageCollector } from '../../usage/UsageTypes.js';
 
 export type BillingCurrency = 'USD' | 'INR' | 'EUR' | string;
 
@@ -63,4 +64,15 @@ export interface BillingCalculationResult {
 export interface BillingCalculationInput {
 	pricing: BillingPricingCatalog;
 	usageEvents: UsageEvent[];
+}
+
+/**
+ * Collector-first billing input foundation.
+ *
+ * Billing integrations should prefer this over raw event arrays so usage
+ * storage remains behind the shared UsageCollector contract.
+ */
+export interface BillingCalculationCollectorInput {
+	pricing: BillingPricingCatalog;
+	usageCollector: UsageCollector;
 }
