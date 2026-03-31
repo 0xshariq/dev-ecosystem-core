@@ -31,6 +31,7 @@ export * from './errors/BaseError.js';
 // ============================================================================
 
 export * from './errors/ErrorCodes.js';
+export * from './errors/billing.codes.js';
 export * from './errors/mediaproc.codes.js';
 export * from './errors/vaulta.codes.js';
 export * from './errors/devforge.codes.js';
@@ -40,6 +41,7 @@ export * from './errors/devforge.codes.js';
 // ============================================================================
 
 export * from './errors/orbyt.errors.js';
+export * from './errors/billing.errors.js';
 export * from './errors/mediaproc.errors.js';
 export * from './errors/vaulta.errors.js';
 export * from './errors/devforge.errors.js';
