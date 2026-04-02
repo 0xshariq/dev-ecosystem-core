@@ -240,6 +240,50 @@ export class BillingEngine {
 		};
 	}
 
+	/**
+	 * TODO(v-next): validate pricing catalog structure/version before any
+	 * billing fetch or calculation path runs.
+	 */
+	validatePricingCatalog(pricing?: BillingPricingCatalog): void {
+		void pricing;
+	}
+
+	/**
+	 * TODO(v-next): centralize period fetch options validation and normalized
+	 * bounds handling for all providers.
+	 */
+	validateUsageFetchOptions(options: BillingUsageFetchOptions): void {
+		void options;
+	}
+
+	/**
+	 * TODO(v-next): centralize incremental cursor validation and migration rules.
+	 */
+	validateUsageIncrementalFetchOptions(options: BillingUsageIncrementalFetchOptions): void {
+		void options;
+	}
+
+	/**
+	 * TODO(v-next): enforce usage event contract validation before pricing rule
+	 * matching (required fields, numeric sanity, event type support).
+	 */
+	validateUsageEvents(usageEvents: UsageEvent[]): void {
+		void usageEvents;
+	}
+
+	/**
+	 * TODO(v-next): enforce overuse restrictions in billing engine itself,
+	 * so caller components only consume the resulting decision.
+	 */
+	enforceOveruseRestrictions(params: {
+		workspaceId?: string;
+		product?: string;
+		from?: number;
+		to?: number;
+	}): void {
+		void params;
+	}
+
 	private matchRule(rules: PricingRule[], event: UsageEvent): PricingRule | null {
 		for (const rule of rules) {
 			if (rule.eventType && rule.eventType !== event.type) {
