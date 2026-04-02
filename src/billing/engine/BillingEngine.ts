@@ -16,6 +16,12 @@ import type {
 	IgnoredUsageEvent,
 	PricingRule,
 } from '../types/BillingTypes.js';
+import {
+	BillingError,
+	BillingCalculationFailedError,
+	UsageFetchFailedError,
+	UsageFetchProviderNotConfiguredError,
+} from '../../errors/billing.errors.js';
 
 export class BillingEngine {
 	private pricing: BillingPricingCatalog;
@@ -62,9 +68,20 @@ export class BillingEngine {
 	 */
 	async fetchUsageForBilling(options: BillingUsageFetchOptions = {}): Promise<BillingUsageFetchResult> {
 		if (!this.usageFetchProvider) {
-			throw new Error('Billing usage fetch provider is not configured');
+			throw new UsageFetchProviderNotConfiguredError({ options });
 		}
-		return this.usageFetchProvider.fetchUsageForBilling(options);
+
+		try {
+			return this.usageFetchProvider.fetchUsageForBilling(options);
+		} catch (error) {
+			if (error instanceof BillingError) {
+				throw error;
+			}
+			throw new UsageFetchFailedError(
+				error instanceof Error ? error.message : String(error),
+				{ options },
+			);
+		}
 	}
 
 	/**
@@ -76,9 +93,20 @@ export class BillingEngine {
 		options: BillingUsageIncrementalFetchOptions = {},
 	): Promise<BillingUsageIncrementalFetchResult> {
 		if (!this.usageFetchProvider) {
-			throw new Error('Billing usage fetch provider is not configured');
+			throw new UsageFetchProviderNotConfiguredError({ options });
 		}
-		return this.usageFetchProvider.fetchUsageForBillingIncremental(options);
+
+		try {
+			return this.usageFetchProvider.fetchUsageForBillingIncremental(options);
+		} catch (error) {
+			if (error instanceof BillingError) {
+				throw error;
+			}
+			throw new UsageFetchFailedError(
+				error instanceof Error ? error.message : String(error),
+				{ options },
+			);
+		}
 	}
 
 	calculate(input: BillingCalculationInput): BillingCalculationResult {
@@ -104,8 +132,9 @@ export class BillingEngine {
 		};
 
 		if (typeof reader.getUsageEvents !== 'function') {
-			throw new Error(
+			throw new BillingCalculationFailedError(
 				'UsageCollector does not expose getUsageEvents(); snapshot/query support is required for billing calculation',
+				{ hasGetUsageEvents: false },
 			);
 		}
 

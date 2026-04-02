@@ -13,18 +13,22 @@ import { ErrorType, ErrorSeverity } from './ErrorTypes.js';
 import { ExitCodes } from '../exit-codes/ExitCodes.js';
 import { BillingErrorCodes, BillingErrorMessages } from './billing.codes.js';
 
+function resolveBillingMessage(code: string): string {
+  return BillingErrorMessages[code] ?? 'Billing operation failed';
+}
+
 /**
  * Base billing error - extended by specific billing errors
  */
 export abstract class BillingError extends BaseError {
   readonly component = 'billing';
-  override readonly severity = ErrorSeverity.MEDIUM;
+  override readonly severity: ErrorSeverity = ErrorSeverity.MEDIUM;
 
   /**
    * Get the user-friendly message for this error
    */
   getUserMessage(): string {
-    return BillingErrorMessages[this.code] || this.message;
+    return BillingErrorMessages[this.code] ?? this.message;
   }
 }
 
@@ -35,11 +39,11 @@ export abstract class BillingError extends BaseError {
 export class PricingNotConfiguredError extends BillingError {
   readonly type = ErrorType.CONFIG;
   readonly code = BillingErrorCodes.PRICING_NOT_CONFIGURED;
-  readonly exitCode = ExitCodes.REQUIRED_SERVICE_UNAVAILABLE;
+  readonly exitCode = ExitCodes.SERVICE_UNAVAILABLE;
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.PRICING_NOT_CONFIGURED], context);
+    super(resolveBillingMessage(BillingErrorCodes.PRICING_NOT_CONFIGURED), context);
   }
 }
 
@@ -50,7 +54,7 @@ export class PricingCatalogInvalidError extends BillingError {
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.PRICING_CATALOG_INVALID], context);
+    super(resolveBillingMessage(BillingErrorCodes.PRICING_CATALOG_INVALID), context);
   }
 }
 
@@ -63,7 +67,7 @@ export class PricingRuleNotFoundError extends BillingError {
 
   constructor(component: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.PRICING_RULE_NOT_FOUND]} (component: ${component})`,
+      `${resolveBillingMessage(BillingErrorCodes.PRICING_RULE_NOT_FOUND)} (component: ${component})`,
       { ...context, component },
     );
   }
@@ -76,19 +80,19 @@ export class PricingRuleInvalidError extends BillingError {
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.PRICING_RULE_INVALID], context);
+    super(resolveBillingMessage(BillingErrorCodes.PRICING_RULE_INVALID), context);
   }
 }
 
 export class PricingVersionMismatchError extends BillingError {
   readonly type = ErrorType.CONFIG;
   readonly code = BillingErrorCodes.PRICING_VERSION_MISMATCH;
-  readonly exitCode = ExitCodes.REQUIRED_SERVICE_UNAVAILABLE;
+  readonly exitCode = ExitCodes.SERVICE_UNAVAILABLE;
   override readonly retryable = true;
 
   constructor(expected: string, actual: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.PRICING_VERSION_MISMATCH]} (expected: ${expected}, got: ${actual})`,
+      `${resolveBillingMessage(BillingErrorCodes.PRICING_VERSION_MISMATCH)} (expected: ${expected}, got: ${actual})`,
       { ...context, expected, actual },
     );
   }
@@ -101,24 +105,24 @@ export class PricingVersionMismatchError extends BillingError {
 export class UsageFetchProviderNotConfiguredError extends BillingError {
   readonly type = ErrorType.CONFIG;
   readonly code = BillingErrorCodes.USAGE_FETCH_PROVIDER_NOT_CONFIGURED;
-  readonly exitCode = ExitCodes.REQUIRED_SERVICE_UNAVAILABLE;
+  readonly exitCode = ExitCodes.SERVICE_UNAVAILABLE;
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_PROVIDER_NOT_CONFIGURED], context);
+    super(resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_PROVIDER_NOT_CONFIGURED), context);
   }
 }
 
 export class UsageFetchFailedError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.USAGE_FETCH_FAILED;
-  readonly exitCode = ExitCodes.EXTERNAL_SERVICE_FAILED;
+  readonly exitCode = ExitCodes.NETWORK_ERROR;
   override readonly retryable = true;
 
   constructor(reason?: string, context?: Record<string, any>) {
     const detail = reason ? ` (${reason})` : '';
     super(
-      `${BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_FAILED]}${detail}`,
+      `${resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_FAILED)}${detail}`,
       context,
     );
   }
@@ -131,7 +135,7 @@ export class UsageFetchOptionsInvalidError extends BillingError {
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_OPTIONS_INVALID], context);
+    super(resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_OPTIONS_INVALID), context);
   }
 }
 
@@ -142,19 +146,19 @@ export class UsageFetchCursorInvalidError extends BillingError {
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_CURSOR_INVALID], context);
+    super(resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_CURSOR_INVALID), context);
   }
 }
 
 export class UsageFetchNoDataError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.USAGE_FETCH_NO_DATA;
-  readonly exitCode = ExitCodes.NO_DATA;
+  readonly exitCode = ExitCodes.VALIDATION_FAILED;
   override readonly severity = ErrorSeverity.LOW;
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_NO_DATA], context);
+    super(resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_NO_DATA), context);
   }
 }
 
@@ -166,7 +170,7 @@ export class UsageFetchTimeoutError extends BillingError {
 
   constructor(timeoutMs: number, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_TIMEOUT]} (${timeoutMs}ms)`,
+      `${resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_TIMEOUT)} (${timeoutMs}ms)`,
       { ...context, timeoutMs },
     );
   }
@@ -175,13 +179,13 @@ export class UsageFetchTimeoutError extends BillingError {
 export class UsageFetchPartialFailureError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.USAGE_FETCH_PARTIAL_FAILURE;
-  readonly exitCode = ExitCodes.PARTIAL_SUCCESS;
+  readonly exitCode = ExitCodes.STEP_FAILED;
   override readonly severity = ErrorSeverity.LOW;
   override readonly retryable = true;
 
   constructor(successCount: number, failureCount: number, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.USAGE_FETCH_PARTIAL_FAILURE]} (${successCount} succeeded, ${failureCount} failed)`,
+      `${resolveBillingMessage(BillingErrorCodes.USAGE_FETCH_PARTIAL_FAILURE)} (${successCount} succeeded, ${failureCount} failed)`,
       { ...context, successCount, failureCount },
     );
   }
@@ -200,7 +204,7 @@ export class BillingCalculationFailedError extends BillingError {
   constructor(reason?: string, context?: Record<string, any>) {
     const detail = reason ? ` (${reason})` : '';
     super(
-      `${BillingErrorMessages[BillingErrorCodes.CALCULATION_FAILED]}${detail}`,
+      `${resolveBillingMessage(BillingErrorCodes.CALCULATION_FAILED)}${detail}`,
       context,
     );
   }
@@ -215,7 +219,7 @@ export class UsageEventInvalidError extends BillingError {
   constructor(detail?: string, context?: Record<string, any>) {
     const msg = detail ? ` (${detail})` : '';
     super(
-      `${BillingErrorMessages[BillingErrorCodes.USAGE_EVENT_INVALID]}${msg}`,
+      `${resolveBillingMessage(BillingErrorCodes.USAGE_EVENT_INVALID)}${msg}`,
       context,
     );
   }
@@ -230,7 +234,7 @@ export class UsageEventTypeUnsupportedError extends BillingError {
 
   constructor(eventType: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.USAGE_EVENT_TYPE_UNSUPPORTED]} (type: ${eventType})`,
+      `${resolveBillingMessage(BillingErrorCodes.USAGE_EVENT_TYPE_UNSUPPORTED)} (type: ${eventType})`,
       { ...context, eventType },
     );
   }
@@ -244,19 +248,19 @@ export class CalculationPrecisionError extends BillingError {
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.CALCULATION_PRECISION_ERROR], context);
+    super(resolveBillingMessage(BillingErrorCodes.CALCULATION_PRECISION_ERROR), context);
   }
 }
 
 export class CurrencyConversionFailedError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.CURRENCY_CONVERSION_FAILED;
-  readonly exitCode = ExitCodes.EXTERNAL_SERVICE_FAILED;
+  readonly exitCode = ExitCodes.NETWORK_ERROR;
   override readonly retryable = true;
 
   constructor(from: string, to: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.CURRENCY_CONVERSION_FAILED]} (${from} → ${to})`,
+      `${resolveBillingMessage(BillingErrorCodes.CURRENCY_CONVERSION_FAILED)} (${from} → ${to})`,
       { ...context, from, to },
     );
   }
@@ -269,12 +273,12 @@ export class CurrencyConversionFailedError extends BillingError {
 export class QuotaPolicyNotFoundError extends BillingError {
   readonly type = ErrorType.CONFIG;
   readonly code = BillingErrorCodes.QUOTA_POLICY_NOT_FOUND;
-  readonly exitCode = ExitCodes.REQUIRED_SERVICE_UNAVAILABLE;
+  readonly exitCode = ExitCodes.SERVICE_UNAVAILABLE;
   override readonly retryable = false;
 
   constructor(tier: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.QUOTA_POLICY_NOT_FOUND]} (tier: ${tier})`,
+      `${resolveBillingMessage(BillingErrorCodes.QUOTA_POLICY_NOT_FOUND)} (tier: ${tier})`,
       { ...context, tier },
     );
   }
@@ -287,20 +291,20 @@ export class QuotaPolicyInvalidError extends BillingError {
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.QUOTA_POLICY_INVALID], context);
+    super(resolveBillingMessage(BillingErrorCodes.QUOTA_POLICY_INVALID), context);
   }
 }
 
 export class QuotaExceededError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.QUOTA_EXCEEDED;
-  readonly exitCode = ExitCodes.QUOTA_EXCEEDED;
+  readonly exitCode = ExitCodes.RESOURCE_ERROR;
   override readonly severity = ErrorSeverity.HIGH;
   override readonly retryable = false;
 
   constructor(reason: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.QUOTA_EXCEEDED]} (reason: ${reason})`,
+      `${resolveBillingMessage(BillingErrorCodes.QUOTA_EXCEEDED)} (reason: ${reason})`,
       { ...context, reason },
     );
   }
@@ -315,13 +319,13 @@ export class QuotaStatusQueryFailedError extends BillingError {
   constructor(reason?: string, context?: Record<string, any>) {
     const detail = reason ? ` (${reason})` : '';
     super(
-      `${BillingErrorMessages[BillingErrorCodes.QUOTA_STATUS_QUERY_FAILED]}${detail}`,
+      `${resolveBillingMessage(BillingErrorCodes.QUOTA_STATUS_QUERY_FAILED)}${detail}`,
       context,
     );
   }
 }
 
-export class QuotaCalculationErrorClass extends BillingError {
+export class QuotaCalculationError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.QUOTA_CALCULATION_ERROR;
   readonly exitCode = ExitCodes.STEP_FAILED;
@@ -330,11 +334,14 @@ export class QuotaCalculationErrorClass extends BillingError {
   constructor(reason?: string, context?: Record<string, any>) {
     const detail = reason ? ` (${reason})` : '';
     super(
-      `${BillingErrorMessages[BillingErrorCodes.QUOTA_CALCULATION_ERROR]}${detail}`,
+      `${resolveBillingMessage(BillingErrorCodes.QUOTA_CALCULATION_ERROR)}${detail}`,
       context,
     );
   }
 }
+
+// Backwards compatibility alias (legacy exported name)
+export class QuotaCalculationErrorClass extends QuotaCalculationError {}
 
 // ============================================================================
 // CONFIGURATION ERRORS
@@ -343,23 +350,23 @@ export class QuotaCalculationErrorClass extends BillingError {
 export class BillingConfigInvalidError extends BillingError {
   readonly type = ErrorType.CONFIG;
   readonly code = BillingErrorCodes.CONFIG_INVALID;
-  readonly exitCode = ExitCodes.INVALID_CONFIGURATION;
+  readonly exitCode = ExitCodes.INVALID_CONFIG;
   override readonly retryable = false;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.CONFIG_INVALID], context);
+    super(resolveBillingMessage(BillingErrorCodes.CONFIG_INVALID), context);
   }
 }
 
 export class BillingConfigMissingRequiredError extends BillingError {
   readonly type = ErrorType.CONFIG;
   readonly code = BillingErrorCodes.CONFIG_MISSING_REQUIRED;
-  readonly exitCode = ExitCodes.REQUIRED_SERVICE_UNAVAILABLE;
+  readonly exitCode = ExitCodes.SERVICE_UNAVAILABLE;
   override readonly retryable = false;
 
   constructor(missingField: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.CONFIG_MISSING_REQUIRED]} (missing: ${missingField})`,
+      `${resolveBillingMessage(BillingErrorCodes.CONFIG_MISSING_REQUIRED)} (missing: ${missingField})`,
       { ...context, missingField },
     );
   }
@@ -368,12 +375,12 @@ export class BillingConfigMissingRequiredError extends BillingError {
 export class BillingEndpointUnreachableError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.BILLING_ENDPOINT_UNREACHABLE;
-  readonly exitCode = ExitCodes.EXTERNAL_SERVICE_FAILED;
+  readonly exitCode = ExitCodes.NETWORK_ERROR;
   override readonly retryable = true;
 
   constructor(endpoint: string, context?: Record<string, any>) {
     super(
-      `${BillingErrorMessages[BillingErrorCodes.BILLING_ENDPOINT_UNREACHABLE]} (${endpoint})`,
+      `${resolveBillingMessage(BillingErrorCodes.BILLING_ENDPOINT_UNREACHABLE)} (${endpoint})`,
       { ...context, endpoint },
     );
   }
@@ -382,10 +389,10 @@ export class BillingEndpointUnreachableError extends BillingError {
 export class BillingServiceUnavailableError extends BillingError {
   readonly type = ErrorType.EXECUTION;
   readonly code = BillingErrorCodes.BILLING_SERVICE_UNAVAILABLE;
-  readonly exitCode = ExitCodes.EXTERNAL_SERVICE_FAILED;
+  readonly exitCode = ExitCodes.SERVICE_UNAVAILABLE;
   override readonly retryable = true;
 
   constructor(context?: Record<string, any>) {
-    super(BillingErrorMessages[BillingErrorCodes.BILLING_SERVICE_UNAVAILABLE], context);
+    super(resolveBillingMessage(BillingErrorCodes.BILLING_SERVICE_UNAVAILABLE), context);
   }
 }
