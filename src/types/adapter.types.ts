@@ -10,6 +10,60 @@
  * - Execution context (AdapterContext)
  * - Result builders and helpers
  * 
+ * Contributor guide (1-14):
+ * 1. JSON-first data model:
+ *    We define JsonPrimitive/JsonObject/JsonArray/JsonValue so adapter payloads
+ *    remain language-agnostic (easy to serialize in TS, Python, Go, Rust, Java).
+ *
+ * 2. Contract versioning:
+ *    ADAPTER_CONTRACT_VERSION marks the current adapter contract (1.0).
+ *    This helps safe evolution when future versions are introduced.
+ *
+ * 3. Strong execution metrics shape:
+ *    ExecutionMetrics keeps required durationMs and allows JSON-safe extra metrics.
+ *
+ * 4. Strong error shape:
+ *    AdapterError normalizes error fields across adapters and runtimes.
+ *
+ * 5. Standard result envelope:
+ *    AdapterResult<T> is the canonical success/failure response contract.
+ *
+ * 6. Capability model:
+ *    AdapterCapabilities declares what an adapter can do (actions, idempotency,
+ *    side-effect level, resource needs, cost hints) for planning/safety.
+ *
+ * 7. Metadata model:
+ *    AdapterMetadata provides human/tooling metadata, including runtime hints
+ *    and a free-form extensions bag.
+ *
+ * 8. Runtime execution context:
+ *    AdapterContext carries execution identity, logs, secrets, env, and workflow
+ *    context needed by adapter implementations.
+ *
+ * 9. Transport-neutral protocol:
+ *    AdapterTransport + AdapterProtocol* types model how adapters can be hosted
+ *    (inproc, stdio, http, grpc, websocket, queue).
+ *
+ * 10. Invocation contracts:
+ *    AdapterInvocationRequest/Response define cross-process payloads so adapters
+ *    in any language can integrate consistently.
+ *
+ * 11. Manifest contract:
+ *    AdapterManifestDefinition is the TS-side contract that mirrors JSON schema
+ *    manifest files used for registration/discovery.
+ *
+ * 12. Adapter interface:
+ *    Adapter defines the minimum execution contract all adapters must satisfy.
+ *
+ * 13. BaseAdapter default implementation:
+ *    BaseAdapter provides shared behavior (pattern matching, validation helpers,
+ *    lifecycle hook helpers) to reduce duplication in adapter implementations.
+ *
+ * 14. Extension pattern for contributors:
+ *    Contributors should extend BaseAdapter, override execute(), and optionally
+ *    use lifecycle hooks (beforeExecute/afterExecute/onExecutionError) to add
+ *    custom behavior without breaking the common contract.
+ * 
  * @module types/adapter
  */
 
