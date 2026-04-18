@@ -1,0 +1,41 @@
+{
+  "$schema": "../adapter.schema.json",
+  "contractVersion": "1.0",
+  "name": "orbyt-shell-javascript",
+  "version": "0.9.1",
+  "description": "JavaScript shell adapter exposed over stdio.",
+  "author": "Orbyt Team",
+  "homepage": "https://example.dev/adapters/orbyt-shell-javascript",
+  "license": "Apache-2.0",
+  "tags": ["shell", "javascript", "stdio"],
+  "implementationHints": {
+    "language": "javascript",
+    "sdkPackage": "@dev-ecosystem/core"
+  },
+  "supportedActions": ["shell.run", "shell.exec"],
+  "capabilities": {
+    "actions": ["shell.run", "shell.exec"],
+    "concurrent": false,
+    "cacheable": false,
+    "idempotent": false,
+    "sideEffectLevel": "high",
+    "resources": {
+      "network": false,
+      "filesystem": true,
+      "database": false,
+      "custom": ["process.spawn"]
+    },
+    "cost": "medium"
+  },
+  "protocol": {
+    "transport": "stdio",
+    "command": "node",
+    "args": ["./dist/shell-adapter.js"],
+    "timeoutMs": 30000,
+    "retries": 0
+  },
+  "extensions": {
+    "runtimeLanguage": "javascript",
+    "runtimeVersion": "node-22"
+  }
+}

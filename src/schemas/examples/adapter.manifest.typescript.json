@@ -1,0 +1,43 @@
+{
+  "$schema": "../adapter.schema.json",
+  "contractVersion": "1.0",
+  "name": "orbyt-http-typescript",
+  "version": "1.2.0",
+  "description": "TypeScript HTTP adapter using the Orbyt BaseAdapter class.",
+  "author": "Orbyt Team",
+  "homepage": "https://example.dev/adapters/orbyt-http-typescript",
+  "license": "MIT",
+  "tags": ["http", "typescript", "base-adapter"],
+  "implementationHints": {
+    "language": "typescript",
+    "baseClassName": "BaseAdapter",
+    "sdkPackage": "@dev-ecosystem/core"
+  },
+  "supportedActions": ["http.request.*", "http.download"],
+  "capabilities": {
+    "actions": ["http.request.*", "http.download"],
+    "concurrent": true,
+    "cacheable": true,
+    "idempotent": true,
+    "sideEffectLevel": "low",
+    "resources": {
+      "network": true,
+      "filesystem": false,
+      "database": false
+    },
+    "cost": "low"
+  },
+  "protocol": {
+    "transport": "inproc",
+    "timeoutMs": 15000,
+    "retries": 2,
+    "auth": {
+      "type": "bearer",
+      "secretRef": "vaulta:adapters/http/token"
+    }
+  },
+  "extensions": {
+    "runtimeLanguage": "typescript",
+    "runtimeVersion": "5.x"
+  }
+}

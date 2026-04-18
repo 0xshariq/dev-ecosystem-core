@@ -1,0 +1,43 @@
+{
+  "$schema": "../adapter.schema.json",
+  "contractVersion": "1.0",
+  "name": "orbyt-db-python",
+  "version": "2.1.0",
+  "description": "Python database adapter served over HTTP.",
+  "author": "Orbyt Team",
+  "homepage": "https://example.dev/adapters/orbyt-db-python",
+  "license": "MIT",
+  "tags": ["database", "python", "http"],
+  "implementationHints": {
+    "language": "python",
+    "sdkPackage": "orbyt-sdk-python"
+  },
+  "supportedActions": ["db.query", "db.execute", "db.transaction.*"],
+  "capabilities": {
+    "actions": ["db.query", "db.execute", "db.transaction.*"],
+    "concurrent": true,
+    "cacheable": false,
+    "idempotent": false,
+    "sideEffectLevel": "medium",
+    "resources": {
+      "network": true,
+      "filesystem": false,
+      "database": true
+    },
+    "cost": "medium"
+  },
+  "protocol": {
+    "transport": "http",
+    "endpoint": "https://adapters.example.dev/python-db/v1",
+    "timeoutMs": 20000,
+    "retries": 1,
+    "auth": {
+      "type": "bearer",
+      "secretRef": "vaulta:adapters/python-db/token"
+    }
+  },
+  "extensions": {
+    "runtimeLanguage": "python",
+    "runtimeVersion": "3.12"
+  }
+}

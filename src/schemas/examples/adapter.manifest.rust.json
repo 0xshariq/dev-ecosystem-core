@@ -1,0 +1,40 @@
+{
+  "$schema": "../adapter.schema.json",
+  "contractVersion": "1.0",
+  "name": "orbyt-fs-rust",
+  "version": "0.4.0",
+  "description": "Rust filesystem adapter over stdio transport.",
+  "author": "Orbyt Team",
+  "homepage": "https://example.dev/adapters/orbyt-fs-rust",
+  "license": "MIT",
+  "tags": ["filesystem", "rust", "stdio"],
+  "implementationHints": {
+    "language": "rust",
+    "sdkPackage": "orbyt-rust-sdk"
+  },
+  "supportedActions": ["fs.read", "fs.write", "fs.list", "fs.delete"],
+  "capabilities": {
+    "actions": ["fs.read", "fs.write", "fs.list", "fs.delete"],
+    "concurrent": true,
+    "cacheable": true,
+    "idempotent": false,
+    "sideEffectLevel": "high",
+    "resources": {
+      "network": false,
+      "filesystem": true,
+      "database": false
+    },
+    "cost": "low"
+  },
+  "protocol": {
+    "transport": "stdio",
+    "command": "./bin/orbyt-fs-adapter",
+    "args": ["--mode", "stdio"],
+    "timeoutMs": 12000,
+    "retries": 0
+  },
+  "extensions": {
+    "runtimeLanguage": "rust",
+    "runtimeVersion": "1.81"
+  }
+}

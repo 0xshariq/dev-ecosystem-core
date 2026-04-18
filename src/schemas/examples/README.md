@@ -125,3 +125,28 @@ See the schema documentation:
 - `/ecosystem-core/schemas/workflow.schema.json` - Full JSON Schema
 - `/ecosystem-core/schemas/workflow.schema.zod.ts` - Zod validation
 - `/ecosystem-core/types/workflow.types.ts` - TypeScript types
+
+## Adapter Manifest Examples (Language-Agnostic)
+
+The following adapter manifests are examples for different implementation languages,
+but all conform to the same schema contract in `../adapter.schema.json`.
+
+- `adapter.manifest.typescript.json`
+- `adapter.manifest.javascript.json`
+- `adapter.manifest.python.json`
+- `adapter.manifest.go.json`
+- `adapter.manifest.rust.json`
+- `adapter.manifest.ruby.json`
+
+### Why these examples are useful
+
+- They show one shared adapter contract for multiple runtimes.
+- They demonstrate transport differences (`inproc`, `stdio`, `http`, `grpc`, `websocket`) without changing the core schema shape.
+- The TypeScript example includes `implementationHints.baseClassName = "BaseAdapter"` to reflect SDK guidance.
+
+### Validate any adapter example
+
+```bash
+ajv validate -s ../adapter.schema.json -d adapter.manifest.typescript.json
+ajv validate -s ../adapter.schema.json -d adapter.manifest.python.json
+```

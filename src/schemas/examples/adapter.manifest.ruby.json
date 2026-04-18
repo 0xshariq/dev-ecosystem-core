@@ -1,0 +1,43 @@
+{
+  "$schema": "../adapter.schema.json",
+  "contractVersion": "1.0",
+  "name": "orbyt-webhook-ruby",
+  "version": "1.1.0",
+  "description": "Ruby webhook adapter over websocket transport.",
+  "author": "Orbyt Team",
+  "homepage": "https://example.dev/adapters/orbyt-webhook-ruby",
+  "license": "MIT",
+  "tags": ["webhook", "ruby", "websocket"],
+  "implementationHints": {
+    "language": "ruby",
+    "sdkPackage": "orbyt-ruby-sdk"
+  },
+  "supportedActions": ["webhook.send", "webhook.verify"],
+  "capabilities": {
+    "actions": ["webhook.send", "webhook.verify"],
+    "concurrent": true,
+    "cacheable": false,
+    "idempotent": true,
+    "sideEffectLevel": "low",
+    "resources": {
+      "network": true,
+      "filesystem": false,
+      "database": false
+    },
+    "cost": "low"
+  },
+  "protocol": {
+    "transport": "websocket",
+    "endpoint": "wss://adapters.example.dev/ruby-webhook/ws",
+    "timeoutMs": 8000,
+    "retries": 2,
+    "auth": {
+      "type": "bearer",
+      "secretRef": "vaulta:adapters/ruby-webhook/token"
+    }
+  },
+  "extensions": {
+    "runtimeLanguage": "ruby",
+    "runtimeVersion": "3.3"
+  }
+}

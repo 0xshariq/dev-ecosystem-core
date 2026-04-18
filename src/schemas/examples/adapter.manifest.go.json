@@ -1,0 +1,44 @@
+{
+  "$schema": "../adapter.schema.json",
+  "contractVersion": "1.0",
+  "name": "orbyt-queue-go",
+  "version": "1.0.3",
+  "description": "Go queue adapter exposed via gRPC.",
+  "author": "Orbyt Team",
+  "homepage": "https://example.dev/adapters/orbyt-queue-go",
+  "license": "BSD-3-Clause",
+  "tags": ["queue", "go", "grpc"],
+  "implementationHints": {
+    "language": "go",
+    "sdkPackage": "orbyt-go-sdk"
+  },
+  "supportedActions": ["queue.publish", "queue.consume", "queue.ack"],
+  "capabilities": {
+    "actions": ["queue.publish", "queue.consume", "queue.ack"],
+    "concurrent": true,
+    "cacheable": false,
+    "idempotent": true,
+    "sideEffectLevel": "medium",
+    "resources": {
+      "network": true,
+      "filesystem": false,
+      "database": false,
+      "custom": ["message-broker"]
+    },
+    "cost": "low"
+  },
+  "protocol": {
+    "transport": "grpc",
+    "endpoint": "https://adapters.example.dev/go-queue:443",
+    "timeoutMs": 10000,
+    "retries": 3,
+    "auth": {
+      "type": "mtls",
+      "secretRef": "vaulta:adapters/go-queue/mtls"
+    }
+  },
+  "extensions": {
+    "runtimeLanguage": "go",
+    "runtimeVersion": "1.23"
+  }
+}
