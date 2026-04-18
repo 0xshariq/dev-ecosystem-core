@@ -1,0 +1,69 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://schemas.orbyt.dev/capability.schema.json",
+	"title": "Orbyt Adapter Capabilities",
+	"description": "Language-agnostic capability contract for adapters.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"actions"
+	],
+	"properties": {
+		"actions": {
+			"type": "array",
+			"description": "Action names or wildcard patterns the adapter can handle.",
+			"minItems": 1,
+			"items": {
+				"type": "string",
+				"pattern": "^[a-zA-Z0-9._*-]+$"
+			}
+		},
+		"concurrent": {
+			"type": "boolean"
+		},
+		"cacheable": {
+			"type": "boolean"
+		},
+		"idempotent": {
+			"type": "boolean"
+		},
+		"sideEffectLevel": {
+			"type": "string",
+			"enum": [
+				"low",
+				"medium",
+				"high"
+			]
+		},
+		"resources": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"network": {
+					"type": "boolean"
+				},
+				"filesystem": {
+					"type": "boolean"
+				},
+				"database": {
+					"type": "boolean"
+				},
+				"custom": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"cost": {
+			"type": "string",
+			"enum": [
+				"free",
+				"low",
+				"medium",
+				"high"
+			]
+		}
+	}
+}
