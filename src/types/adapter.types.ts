@@ -13,6 +13,22 @@
  * @module types/adapter
  */
 
+/** JSON primitive value */
+export type JsonPrimitive = string | number | boolean | null;
+
+/** JSON object value */
+export type JsonObject = { [key: string]: JsonValue };
+
+/** JSON array value */
+export type JsonArray = JsonValue[];
+
+/** Generic JSON value */
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+
+/** Supported adapter contract versions */
+export const ADAPTER_CONTRACT_VERSION = '1.0' as const;
+export type AdapterContractVersion = typeof ADAPTER_CONTRACT_VERSION;
+
 /**
  * Execution metrics captured during adapter execution
  */
@@ -27,7 +43,7 @@ export interface ExecutionMetrics {
   retries?: number;
 
   /** Additional adapter-specific metrics */
-  [key: string]: any;
+  [key: string]: JsonValue | undefined;
 }
 
 /**
@@ -44,7 +60,7 @@ export interface AdapterError {
   stack?: string;
 
   /** Additional error context */
-  details?: Record<string, any>;
+  details?: Record<string, JsonValue>;
 }
 
 /**
@@ -53,7 +69,7 @@ export interface AdapterError {
  * All adapters must return results in this format.
  * The generic type T allows adapter-specific output data.
  */
-export interface AdapterResult<T = any> {
+export interface AdapterResult<T = JsonValue> {
   /** Whether execution was successful */
   success: boolean;
 
@@ -124,6 +140,9 @@ export interface AdapterMetadata {
   /** Adapter name */
   name: string;
 
+  /** Adapter contract version */
+  contractVersion?: AdapterContractVersion;
+
   /** Adapter version (semver) */
   version: string;
 
@@ -141,6 +160,15 @@ export interface AdapterMetadata {
 
   /** Tags for categorization */
   tags?: string[];
+
+  /** Runtime/language implementation hint (python, go, rust, java, dotnet, js) */
+  runtimeLanguage?: string;
+
+  /** Runtime version hint */
+  runtimeVersion?: string;
+
+  /** Free-form extension bag for adapter-specific metadata */
+  extensions?: Record<string, JsonValue>;
 }
 
 /**
@@ -178,19 +206,93 @@ export interface AdapterContext {
   env?: Record<string, string>;
 
   /** Access to previous step outputs */
-  stepOutputs?: Record<string, any>;
+  stepOutputs?: Record<string, JsonValue>;
 
   /** Workflow inputs */
-  inputs?: Record<string, any>;
+  inputs?: Record<string, JsonValue>;
 
   /** Workflow context */
-  workflowContext?: Record<string, any>;
+  workflowContext?: Record<string, JsonValue>;
+}
+
+/**
+ * Transport-neutral adapter protocol.
+ *
+ * This allows adapters in any language/runtime to communicate with Orbyt over
+ * stdio, HTTP, gRPC, websocket, queue, or in-process bridges.
+ */
+export type AdapterTransport =
+  | 'inproc'
+  | 'stdio'
+  | 'http'
+  | 'grpc'
+  | 'websocket'
+  | 'queue';
+
+export interface AdapterProtocolAuth {
+  type?: 'none' | 'bearer' | 'basic' | 'mtls' | 'custom';
+  secretRef?: string;
+}
+
+export interface AdapterProtocolConfig {
+  transport: AdapterTransport;
+  command?: string;
+  args?: string[];
+  endpoint?: string;
+  timeoutMs?: number;
+  retries?: number;
+  auth?: AdapterProtocolAuth;
+}
+
+export interface AdapterInvocationContext {
+  workflowName: string;
+  stepId: string;
+  executionId: string;
+  timeout?: number;
+  cwd?: string;
+  env?: Record<string, string>;
+  secrets?: Record<string, string>;
+  stepOutputs?: Record<string, JsonValue>;
+  inputs?: Record<string, JsonValue>;
+  workflowContext?: Record<string, JsonValue>;
+}
+
+export interface AdapterInvocationRequest {
+  protocolVersion: '1.0';
+  requestId: string;
+  adapter: string;
+  action: string;
+  input: Record<string, JsonValue>;
+  context: AdapterInvocationContext;
+}
+
+export interface AdapterInvocationResponse<T = JsonValue> {
+  protocolVersion: '1.0';
+  requestId: string;
+  result: AdapterResult<T>;
+}
+
+export interface AdapterManifestDefinition {
+  contractVersion: AdapterContractVersion;
+  name: string;
+  version: string;
+  description?: string;
+  author?: string;
+  homepage?: string;
+  license?: string;
+  tags?: string[];
+  supportedActions: string[];
+  capabilities: AdapterCapabilities;
+  protocol: AdapterProtocolConfig;
 }
 
 /**
  * Base adapter interface for workflow actions
  */
 export interface Adapter {
+  /** Adapter contract version */
+  readonly contractVersion?: AdapterContractVersion;
+
   /** Unique adapter name */
   readonly name: string;
 
@@ -236,7 +338,7 @@ export interface Adapter {
    */
   execute(
     action: string,
-    input: Record<string, any>,
+    input: Record<string, JsonValue>,
     context: AdapterContext
   ): Promise<AdapterResult>;
 
@@ -255,6 +357,7 @@ export interface Adapter {
  * Base adapter implementation with common logic
  */
 export abstract class BaseAdapter implements Adapter {
+  readonly contractVersion: AdapterContractVersion = ADAPTER_CONTRACT_VERSION;
   abstract readonly name: string;
   abstract readonly version: string;
   abstract readonly description?: string;
@@ -281,9 +384,89 @@ export abstract class BaseAdapter implements Adapter {
    */
   abstract execute(
     action: string,
-    input: Record<string, any>,
+    input: Record<string, JsonValue>,
     context: AdapterContext
   ): Promise<AdapterResult>;
+
+  /**
+   * Optional hook: runs before execute().
+   * Subclasses can override to inject telemetry, guards, or preprocessing.
+   */
+  protected async beforeExecute(
+    _action: string,
+    _input: Record<string, JsonValue>,
+    _context: AdapterContext
+  ): Promise<void> {
+    // Default no-op.
+  }
+
+  /**
+   * Optional hook: runs after execute() succeeds.
+   * Subclasses can override to enrich result metadata.
+   */
+  protected async afterExecute(
+    _action: string,
+    _input: Record<string, JsonValue>,
+    _context: AdapterContext,
+    result: AdapterResult
+  ): Promise<AdapterResult> {
+    return result;
+  }
+
+  /**
+   * Optional hook: runs when execute() throws.
+   * Subclasses can override for custom error normalization.
+   */
+  protected async onExecutionError(
+    _action: string,
+    _input: Record<string, JsonValue>,
+    _context: AdapterContext,
+    error: unknown
+  ): Promise<AdapterResult | null> {
+    if (error instanceof Error) {
+      return createFailureResult(
+        {
+          message: error.message,
+          stack: error.stack,
+        },
+        { durationMs: 0 }
+      );
+    }
+
+    return createFailureResult(
+      {
+        message: 'Adapter execution failed with a non-Error value',
+        details: {
+          thrownValue: String(error),
+        },
+      },
+      { durationMs: 0 }
+    );
+  }
+
+  /**
+   * Wrapper that executes lifecycle hooks around execute().
+   * Subclasses may call this helper when they want common hook behavior.
+   */
+  protected async executeWithLifecycle(
+    action: string,
+    input: Record<string, JsonValue>,
+    context: AdapterContext,
+    executor: () => Promise<AdapterResult>
+  ): Promise<AdapterResult> {
+    await this.beforeExecute(action, input, context);
+
+    try {
+      const result = await executor();
+      return await this.afterExecute(action, input, context, result);
+    } catch (error) {
+      const recovered = await this.onExecutionError(action, input, context, error);
+      if (recovered) {
+        return recovered;
+      }
+      throw error;
+    }
+  }
 
   /**
    * Match action against pattern
@@ -302,7 +485,7 @@ export abstract class BaseAdapter implements Adapter {
    * Validate required input fields
    */
   protected validateInput(
-    input: Record<string, any>,
+    input: Record<string, JsonValue>,
     required: string[]
   ): void {
     for (const field of required) {
@@ -318,11 +501,11 @@ export abstract class BaseAdapter implements Adapter {
    * Get input with default value
    */
   protected getInput<T>(
-    input: Record<string, any>,
+    input: Record<string, JsonValue>,
     key: string,
     defaultValue: T
   ): T {
-    return input[key] !== undefined ? input[key] : defaultValue;
+    return input[key] !== undefined ? (input[key] as T) : defaultValue;
   }
 }
 
