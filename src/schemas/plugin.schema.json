@@ -1,0 +1,95 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://schemas.orbyt.dev/plugin.schema.json",
+	"title": "Orbyt Plugin Definition",
+	"description": "Language-agnostic plugin contract that can package one or more adapters.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"name",
+		"version",
+		"runtime",
+		"adapters"
+	],
+	"properties": {
+		"name": {
+			"type": "string",
+			"pattern": "^[a-z0-9][a-z0-9-_.]*$",
+			"minLength": 2,
+			"maxLength": 100
+		},
+		"version": {
+			"type": "string",
+			"pattern": "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(\\.(0|[1-9]\\d*))?([-.][a-zA-Z0-9.-]+)?$"
+		},
+		"description": {
+			"type": "string"
+		},
+		"author": {
+			"type": "string"
+		},
+		"homepage": {
+			"type": "string",
+			"format": "uri"
+		},
+		"license": {
+			"type": "string"
+		},
+		"runtime": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"language"
+			],
+			"properties": {
+				"language": {
+					"type": "string",
+					"description": "Implementation language, e.g. js, ts, python, go, rust, java, dotnet."
+				},
+				"version": {
+					"type": "string"
+				},
+				"entrypoint": {
+					"type": "string"
+				},
+				"transport": {
+					"type": "string",
+					"enum": [
+						"inproc",
+						"stdio",
+						"http",
+						"grpc",
+						"websocket",
+						"queue"
+					]
+				}
+			}
+		},
+		"adapters": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "./adapter.schema.json"
+			}
+		},
+		"permissions": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"network": {
+					"type": "boolean"
+				},
+				"filesystem": {
+					"type": "boolean"
+				},
+				"database": {
+					"type": "boolean"
+				}
+			}
+		},
+		"metadata": {
+			"type": "object",
+			"additionalProperties": true
+		}
+	}
+}
