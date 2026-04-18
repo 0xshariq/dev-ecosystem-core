@@ -1,0 +1,234 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://schemas.orbyt.dev/adapter.schema.json",
+	"title": "Orbyt Adapter Definition",
+	"description": "Language-agnostic adapter manifest for adapters implemented in any runtime/language. Inheritance from BaseAdapter is a TypeScript SDK concern and is represented here via implementation hints.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"contractVersion",
+		"name",
+		"version",
+		"protocol",
+		"supportedActions",
+		"capabilities"
+	],
+	"properties": {
+		"contractVersion": {
+			"type": "string",
+			"pattern": "^1\\.0$",
+			"description": "Adapter contract version for schema compatibility."
+		},
+		"name": {
+			"type": "string",
+			"pattern": "^[a-z0-9][a-z0-9-_.]*$",
+			"minLength": 2,
+			"maxLength": 100
+		},
+		"version": {
+			"type": "string",
+			"pattern": "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(\\.(0|[1-9]\\d*))?([-.][a-zA-Z0-9.-]+)?$"
+		},
+		"description": {
+			"type": "string",
+			"maxLength": 2000
+		},
+		"author": {
+			"type": "string",
+			"maxLength": 256
+		},
+		"homepage": {
+			"type": "string",
+			"format": "uri"
+		},
+		"license": {
+			"type": "string",
+			"maxLength": 64
+		},
+		"tags": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"maxLength": 64
+			},
+			"maxItems": 50
+		},
+		"implementationHints": {
+			"type": "object",
+			"additionalProperties": false,
+			"description": "Optional implementation hints for tooling and SDK validation.",
+			"properties": {
+				"language": {
+					"type": "string",
+					"enum": [
+						"typescript",
+						"javascript",
+						"python",
+						"go",
+						"rust",
+						"java",
+						"dotnet",
+						"ruby",
+						"php",
+						"other"
+					]
+				},
+				"baseClassName": {
+					"type": "string",
+					"description": "TypeScript SDK hint: expected to be BaseAdapter when language is typescript."
+				},
+				"sdkPackage": {
+					"type": "string",
+					"description": "SDK package used by adapter implementation."
+				}
+			}
+		},
+		"supportedActions": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "string",
+				"pattern": "^[a-zA-Z0-9._*-]+$"
+			}
+		},
+		"capabilities": {
+			"$ref": "./capability.schema.json"
+		},
+		"protocol": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"transport"
+			],
+			"properties": {
+				"transport": {
+					"type": "string",
+					"enum": [
+						"inproc",
+						"stdio",
+						"http",
+						"grpc",
+						"websocket",
+						"queue"
+					]
+				},
+				"command": {
+					"type": "string",
+					"description": "Required for stdio adapters. Example: python ./adapter.py"
+				},
+				"args": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"endpoint": {
+					"type": "string",
+					"format": "uri",
+					"description": "Required for network transports (http/grpc/websocket)."
+				},
+				"timeoutMs": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"retries": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"auth": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"type": {
+							"type": "string",
+							"enum": [
+								"none",
+								"bearer",
+								"basic",
+								"mtls",
+								"custom"
+							]
+						},
+						"secretRef": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"allOf": [
+				{
+					"if": {
+						"properties": {
+							"transport": {
+								"const": "stdio"
+							}
+						}
+					},
+					"then": {
+						"required": [
+							"command"
+						]
+					}
+				},
+				{
+					"if": {
+						"properties": {
+							"transport": {
+								"enum": [
+									"http",
+									"grpc",
+									"websocket"
+								]
+							}
+						}
+					},
+					"then": {
+						"required": [
+							"endpoint"
+						]
+					}
+				}
+			]
+		},
+		"extensions": {
+			"type": "object",
+			"description": "Open extension bag for runtime-specific custom fields.",
+			"additionalProperties": true
+		}
+	},
+	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"implementationHints": {
+						"properties": {
+							"language": {
+								"const": "typescript"
+							}
+						},
+						"required": [
+							"language"
+						]
+					}
+				},
+				"required": [
+					"implementationHints"
+				]
+			},
+			"then": {
+				"properties": {
+					"implementationHints": {
+						"required": [
+							"baseClassName"
+						],
+						"properties": {
+							"baseClassName": {
+								"const": "BaseAdapter"
+							}
+						}
+					}
+				}
+			}
+		}
+	]
+}
