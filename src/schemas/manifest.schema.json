@@ -1,0 +1,92 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://schemas.orbyt.dev/manifest.schema.json",
+	"title": "Orbyt Extension Manifest",
+	"description": "Top-level manifest schema for language-agnostic adapter/plugin packages.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"specVersion",
+		"kind",
+		"name",
+		"version"
+	],
+	"properties": {
+		"specVersion": {
+			"type": "string",
+			"pattern": "^1\\.0$"
+		},
+		"kind": {
+			"type": "string",
+			"enum": [
+				"adapter",
+				"plugin"
+			]
+		},
+		"name": {
+			"type": "string",
+			"pattern": "^[a-z0-9][a-z0-9-_.]*$"
+		},
+		"version": {
+			"type": "string",
+			"pattern": "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(\\.(0|[1-9]\\d*))?([-.][a-zA-Z0-9.-]+)?$"
+		},
+		"displayName": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"repository": {
+			"type": "string",
+			"format": "uri"
+		},
+		"homepage": {
+			"type": "string",
+			"format": "uri"
+		},
+		"license": {
+			"type": "string"
+		},
+		"adapter": {
+			"$ref": "./adapter.schema.json"
+		},
+		"plugin": {
+			"$ref": "./plugin.schema.json"
+		},
+		"metadata": {
+			"type": "object",
+			"additionalProperties": true
+		}
+	},
+	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"kind": {
+						"const": "adapter"
+					}
+				}
+			},
+			"then": {
+				"required": [
+					"adapter"
+				]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"kind": {
+						"const": "plugin"
+					}
+				}
+			},
+			"then": {
+				"required": [
+					"plugin"
+				]
+			}
+		}
+	]
+}
