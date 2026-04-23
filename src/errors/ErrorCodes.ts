@@ -28,10 +28,10 @@ export const OrbytErrorCodes = {
   /** Circular dependency detected in workflow steps */
   WORKFLOW_CYCLE_DETECTED: 'ORBYT-WF-002',
   
-  /** Workflow parsing failed */
+  /** .orbt workflow parsing failed */
   WORKFLOW_PARSE_FAILED: 'ORBYT-WF-003',
   
-  /** Workflow not found */
+  /** .orbt workflow artifact not found */
   WORKFLOW_NOT_FOUND: 'ORBYT-WF-004',
   
   /** Workflow version unsupported */ 
